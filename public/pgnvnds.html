@@ -2147,8 +2147,10 @@
     document.getElementById('checkout-modal').classList.remove('open');
     document.body.style.overflow = '';
   }
-  document.getElementById('checkout-modal').addEventListener('click', function(e) {
-    if (e.target === this) closeCheckout();
+  document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('checkout-modal').addEventListener('click', function(e) {
+      if (e.target === this) closeCheckout();
+    });
   });
 
   document.getElementById('checkout-form').addEventListener('submit', async function(e) {
