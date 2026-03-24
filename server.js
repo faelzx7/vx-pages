@@ -14,7 +14,6 @@ const Anthropic  = require('@anthropic-ai/sdk');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const rateLimit  = require('express-rate-limit');
 const crypto     = require('crypto');
-const { AbacatePay } = require('@abacatepay/sdk');
 
 // Load generate_page prompt from file (fallback to inline if missing)
 let GENERATE_PAGE_PROMPT = '';
@@ -29,10 +28,25 @@ const PORT   = process.env.PORT || 4000;
 const CLAUDE = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const GEMINI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
-// AbacatePay — inicializa só se a key existir
-const ABACATE = process.env.ABACATEPAY_API_KEY
-  ? new AbacatePay({ apiKey: process.env.ABACATEPAY_API_KEY })
-  : null;
+// AbacatePay — chave para chamadas REST diretas
+const ABACATE_KEY = process.env.ABACATEPAY_API_KEY || null;
+const ABACATE_URL = 'https://api.abacatepay.com/v1';
+
+async function abacatePost(path, body) {
+  const res = await fetch(`${ABACATE_URL}${path}`, {
+    method:  'POST',
+    headers: {
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${ABACATE_KEY}`,
+    },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`AbacatePay ${res.status}: ${text}`);
+  }
+  return res.json();
+}
 
 // Preço do plano em centavos (ex: 19700 = R$197). Configurável via env.
 const PLAN_PRICE    = parseInt(process.env.PLAN_PRICE || '9700', 10); // default R$97
@@ -375,7 +389,7 @@ app.post('/api/image', aiLimiter, async (req, res) => {
 
 // ─── Checkout AbacatePay ──────────────────────
 app.post('/api/checkout', async (req, res) => {
-  if (!ABACATE) {
+  if (!ABACATE_KEY) {
     return res.status(503).json({ error: 'Pagamentos não configurados.' });
   }
 
@@ -385,16 +399,11 @@ app.post('/api/checkout', async (req, res) => {
   }
 
   try {
-    const billing = await ABACATE.billing.create({
-      frequency:     'ONE_TIME',
-      methods:       ['PIX', 'CREDIT_CARD'],
-      products: [{
-        externalId: 'vxpages-pro',
-        name:       PLAN_NAME,
-        quantity:   1,
-        price:      PLAN_PRICE,
-      }],
-      customer: {
+    const billing = await abacatePost('/billing/create', {
+      frequency: 'ONE_TIME',
+      methods:   ['PIX', 'CREDIT_CARD'],
+      products:  [{ externalId: 'vxpages-pro', name: PLAN_NAME, quantity: 1, price: PLAN_PRICE }],
+      customer:  {
         name,
         email,
         ...(cellphone && { cellphone }),
