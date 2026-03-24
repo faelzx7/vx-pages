@@ -187,7 +187,7 @@ app.use(express.json({ limit: '50kb' }));
 
 // ─── Servir arquivos estáticos de public/ ─────
 // Apenas arquivos dentro de public/ são expostos — server.js, .env, etc. nunca são acessíveis.
-app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'public'), { index: false }));
 
 // ─── Rotas de página ──────────────────────────
 app.get('/',         (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pgnvnds.html')));
