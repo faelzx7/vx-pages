@@ -13,6 +13,8 @@ const fs         = require('fs');
 const Anthropic  = require('@anthropic-ai/sdk');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const rateLimit  = require('express-rate-limit');
+const crypto     = require('crypto');
+const { AbacatePay } = require('@abacatepay/sdk');
 
 // Load generate_page prompt from file (fallback to inline if missing)
 let GENERATE_PAGE_PROMPT = '';
@@ -26,6 +28,16 @@ const app    = express();
 const PORT   = process.env.PORT || 4000;
 const CLAUDE = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const GEMINI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
+
+// AbacatePay — inicializa só se a key existir
+const ABACATE = process.env.ABACATEPAY_API_KEY
+  ? new AbacatePay({ apiKey: process.env.ABACATEPAY_API_KEY })
+  : null;
+
+// Preço do plano em centavos (ex: 19700 = R$197). Configurável via env.
+const PLAN_PRICE    = parseInt(process.env.PLAN_PRICE || '9700', 10); // default R$97
+const PLAN_NAME     = process.env.PLAN_NAME || 'VX Pages Pro';
+const BASE_URL      = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 // ─── Modelos ──────────────────────────────────
 const MODEL_FAST    = 'claude-haiku-4-5';     // ~R$0,02/chamada
@@ -361,9 +373,80 @@ app.post('/api/image', aiLimiter, async (req, res) => {
   }
 });
 
+// ─── Checkout AbacatePay ──────────────────────
+app.post('/api/checkout', async (req, res) => {
+  if (!ABACATE) {
+    return res.status(503).json({ error: 'Pagamentos não configurados.' });
+  }
+
+  const { name, email, cellphone, taxId } = req.body || {};
+  if (!name || !email) {
+    return res.status(400).json({ error: 'Nome e e-mail são obrigatórios.' });
+  }
+
+  try {
+    const billing = await ABACATE.billing.create({
+      frequency:     'ONE_TIME',
+      methods:       ['PIX'],
+      products: [{
+        externalId: 'vxpages-pro',
+        name:       PLAN_NAME,
+        quantity:   1,
+        price:      PLAN_PRICE,
+      }],
+      customer: {
+        name,
+        email,
+        ...(cellphone && { cellphone }),
+        ...(taxId     && { taxId }),
+      },
+      returnUrl:     `${BASE_URL}/dash`,
+      completionUrl: `${BASE_URL}/dash?payment=success`,
+    });
+
+    res.json({ url: billing.url });
+  } catch (err) {
+    console.error('[/api/checkout]', err.message);
+    res.status(500).json({ error: 'Erro ao criar cobrança.' });
+  }
+});
+
+// ─── Webhook AbacatePay ───────────────────────
+app.post('/api/webhook/abacatepay', express.raw({ type: 'application/json' }), (req, res) => {
+  const secret    = process.env.ABACATEPAY_WEBHOOK_SECRET;
+  const signature = req.headers['x-webhook-signature'];
+
+  if (secret && signature) {
+    const expected = crypto
+      .createHmac('sha256', secret)
+      .update(req.body)
+      .digest('hex');
+    if (signature !== expected) {
+      return res.status(401).end();
+    }
+  }
+
+  try {
+    const event = JSON.parse(req.body.toString());
+    console.log(`[webhook] event=${event.event} id=${event.data?.id}`);
+
+    if (event.event === 'billing.paid' || event.event === 'checkout.completed') {
+      // TODO: marcar usuário como pago no banco quando DB for integrado
+      console.log(`[webhook] Pagamento confirmado: ${event.data?.customer?.email}`);
+    }
+
+    res.status(200).json({ received: true });
+  } catch (err) {
+    console.error('[webhook] parse error', err.message);
+    res.status(400).end();
+  }
+});
+
 app.listen(PORT, () => {
   console.log(`\n✅ VX Pages rodando em http://localhost:${PORT}`);
   console.log(`   Haiku  (rápido): ${MODEL_FAST}`);
   console.log(`   Sonnet (página): ${MODEL_COMPLEX}`);
-  console.log(`   Imagen (imagem): ${MODEL_IMAGE}\n`);
+  console.log(`   Imagen (imagem): ${MODEL_IMAGE}`);
+  console.log(`   AbacatePay:      ${ABACATE ? 'configurado ✅' : 'não configurado ⚠️'}`);
+  console.log(`   Plano:           ${PLAN_NAME} — R$${(PLAN_PRICE/100).toFixed(2)}\n`);
 });

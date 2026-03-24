@@ -1234,7 +1234,7 @@
       </p>
 
       <div class="hero-cta animate-fade-up delay-4">
-        <a href="/login" class="btn btn-primary btn-xl">Quero começar agora →</a>
+        <a href="#" onclick="openCheckout();return false;" class="btn btn-primary btn-xl">Quero começar agora →</a>
       </div>
 
       <div class="hero-social-proof animate-fade-up delay-5">
@@ -2006,7 +2006,7 @@
     <h2 class="reveal">Você pode continuar<br>do jeito que está.<br>Ou pode <span style="color:var(--green);">mudar hoje.</span></h2>
     <p class="reveal">Cada dia que passa sem o VX Pages é um cliente que vai para o concorrente, uma hora que você poderia ter economizado, uma venda que deixou de acontecer.</p>
     <div class="final-cta-group reveal">
-      <a href="/login" class="btn btn-primary btn-xl" onclick="handleFinalCta(this)">
+      <a href="#" class="btn btn-primary btn-xl" onclick="handleFinalCta(this)">
         Quero começar agora — 7 dias de garantia →
       </a>
     </div>
@@ -2136,9 +2136,54 @@
     });
   });
 
-  // ─── Final CTA tracking ──────────────────────
+  // ─── Checkout modal ──────────────────────────
+  function openCheckout() {
+    document.getElementById('checkout-modal').classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+  function closeCheckout() {
+    document.getElementById('checkout-modal').classList.remove('open');
+    document.body.style.overflow = '';
+  }
+  document.getElementById('checkout-modal').addEventListener('click', function(e) {
+    if (e.target === this) closeCheckout();
+  });
+
+  document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    const btn = this.querySelector('button[type=submit]');
+    const name      = this.name.value.trim();
+    const email     = this.email.value.trim();
+    const cellphone = this.cellphone.value.trim();
+    const taxId     = this.taxId.value.replace(/\D/g,'');
+
+    btn.disabled = true;
+    btn.textContent = 'Aguarde...';
+
+    try {
+      const res = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, cellphone, taxId }),
+      });
+      const data = await res.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert(data.error || 'Erro ao processar. Tente novamente.');
+        btn.disabled = false;
+        btn.textContent = 'Ir para o pagamento →';
+      }
+    } catch {
+      alert('Erro de conexão. Tente novamente.');
+      btn.disabled = false;
+      btn.textContent = 'Ir para o pagamento →';
+    }
+  });
+
   function handleFinalCta(el) {
-    // track conversion event if analytics present
+    el.preventDefault();
+    openCheckout();
     try { if (typeof gtag !== 'undefined') gtag('event', 'cta_click', { location: 'final' }); } catch {}
   }
 
@@ -2147,5 +2192,45 @@
     el.style.transitionDelay = `${(i % 3) * 0.1}s`;
   });
 </script>
+<!-- ─── Checkout Modal ─────────────────────── -->
+<div id="checkout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
+  <div style="background:#084E59;border:1px solid rgba(255,255,255,.12);border-radius:20px;padding:36px 32px;width:100%;max-width:440px;position:relative">
+    <button onclick="closeCheckout()" style="position:absolute;top:16px;right:16px;background:rgba(255,255,255,.08);border:none;color:#fff;width:32px;height:32px;border-radius:50%;font-size:1rem;cursor:pointer;display:flex;align-items:center;justify-content:center">✕</button>
+
+    <div style="text-align:center;margin-bottom:24px">
+      <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;color:#00FF85;margin-bottom:8px">COMEÇAR AGORA</div>
+      <h3 style="font-size:1.3rem;font-weight:800;margin:0 0 6px">VX Pages Pro</h3>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,.6);margin:0">Preencha os dados para prosseguir com o pagamento via PIX</p>
+    </div>
+
+    <form id="checkout-form" style="display:flex;flex-direction:column;gap:14px">
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,.6);display:block;margin-bottom:5px">Nome completo</label>
+        <input name="name" type="text" required placeholder="Seu nome" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:0.88rem;outline:none;font-family:Inter,sans-serif;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,.6);display:block;margin-bottom:5px">E-mail</label>
+        <input name="email" type="email" required placeholder="seu@email.com" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:0.88rem;outline:none;font-family:Inter,sans-serif;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,.6);display:block;margin-bottom:5px">CPF</label>
+        <input name="taxId" type="text" required placeholder="000.000.000-00" maxlength="14" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:0.88rem;outline:none;font-family:Inter,sans-serif;box-sizing:border-box">
+      </div>
+      <div>
+        <label style="font-size:0.75rem;font-weight:600;color:rgba(255,255,255,.6);display:block;margin-bottom:5px">WhatsApp <span style="opacity:.5">(opcional)</span></label>
+        <input name="cellphone" type="tel" placeholder="+55 (11) 99999-9999" style="width:100%;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);border-radius:10px;padding:11px 14px;color:#fff;font-size:0.88rem;outline:none;font-family:Inter,sans-serif;box-sizing:border-box">
+      </div>
+      <button type="submit" style="background:#00FF85;color:#052F33;border:none;border-radius:12px;padding:14px;font-size:0.95rem;font-weight:800;cursor:pointer;margin-top:4px;transition:opacity .2s">
+        Ir para o pagamento →
+      </button>
+    </form>
+    <p style="text-align:center;font-size:0.72rem;color:rgba(255,255,255,.4);margin:14px 0 0">🔒 Pagamento 100% seguro via PIX · Garantia de 7 dias</p>
+  </div>
+</div>
+
+<style>
+  #checkout-modal.open { display: flex; }
+</style>
+
 </body>
 </html>
