@@ -106,6 +106,12 @@ function initDashUser() {
   if (emailEl)  emailEl.textContent  = currentUser.email;
   if (topGreet) topGreet.textContent = `Olá, ${currentUser.given}! 👋`;
 
+  // Preenche campos de perfil nas configurações
+  const settingsName  = document.getElementById('settings-name-input');
+  const settingsEmail = document.getElementById('settings-email-input');
+  if (settingsName)  settingsName.value  = currentUser.name;
+  if (settingsEmail) settingsEmail.value = currentUser.email;
+
   // Garante que o nav item correto fica ativo
   if (typeof navigate === 'function') navigate('dashboard');
 

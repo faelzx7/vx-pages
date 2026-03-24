@@ -98,7 +98,7 @@ function navigate(section) {
 
 function updateTopbar(section) {
   const titles = {
-    dashboard:  ['Dashboard',       'Bem-vindo de volta, Rafael! 👋'],
+    dashboard:  ['Dashboard',       `Bem-vindo de volta, ${window.currentUser?.given || 'de volta'}! 👋`],
     builder:    ['Criar Nova Página', 'IA gerando sua landing page'],
     pages:      ['Minhas Páginas',  'Gerencie e acompanhe suas páginas'],
     training:   ['Centro de Treinamento', 'Desenvolva suas habilidades'],
