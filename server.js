@@ -50,8 +50,7 @@ async function abacatePost(path, body) {
 
 // Preços em centavos. Configuráveis via env vars no Railway.
 const PLANS = {
-  mensal: { price: parseInt(process.env.PLAN_PRICE_MENSAL || '12700', 10), name: 'VX Pages — Plano Mensal' },
-  anual:  { price: parseInt(process.env.PLAN_PRICE_ANUAL  || '29700', 10), name: 'VX Pages — Plano Anual'  },
+  anual: { price: parseInt(process.env.PLAN_PRICE_ANUAL || '29700', 10), name: 'VX Pages — Plano Anual Completo' },
 };
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
@@ -462,6 +461,5 @@ app.listen(PORT, () => {
   console.log(`   Sonnet (página): ${MODEL_COMPLEX}`);
   console.log(`   Imagen (imagem): ${MODEL_IMAGE}`);
   console.log(`   AbacatePay:      ${ABACATE_KEY ? 'configurado ✅' : 'não configurado ⚠️'}`);
-  console.log(`   Plano mensal:    R$${(PLANS.mensal.price/100).toFixed(2)}`);
   console.log(`   Plano anual:     R$${(PLANS.anual.price/100).toFixed(2)}\n`);
 });

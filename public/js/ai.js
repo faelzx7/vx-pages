@@ -2,6 +2,85 @@
    VX PAGES — Claude AI Integration
    ============================================= */
 
+// ─── Credits System ───────────────────────────
+// MVP: client-side control via localStorage
+// Key: vx_credits_{email}
+
+const CREDITS_LIMIT = 15;
+
+function _creditsKey() {
+  try {
+    const u = JSON.parse(localStorage.getItem('vxpages_user') || '{}');
+    return u.email ? `vx_credits_${u.email}` : null;
+  } catch { return null; }
+}
+
+function initCredits() {
+  const key = _creditsKey();
+  if (!key) return;
+
+  const now  = new Date();
+  const raw  = localStorage.getItem(key);
+  let data   = null;
+
+  if (raw) {
+    try { data = JSON.parse(raw); } catch { data = null; }
+  }
+
+  // If no data or resetDate already passed → reset
+  if (!data || new Date(data.resetDate) <= now) {
+    const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
+    data = { used: 0, limit: CREDITS_LIMIT, resetDate: resetDate.toISOString().slice(0, 10) };
+    localStorage.setItem(key, JSON.stringify(data));
+  }
+  return data;
+}
+
+function getCreditsInfo() {
+  const key  = _creditsKey();
+  const data = key ? (() => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } })() : null;
+  if (!data) return { used: 0, limit: CREDITS_LIMIT, remaining: CREDITS_LIMIT, resetDate: null };
+  return { used: data.used, limit: data.limit, remaining: Math.max(0, data.limit - data.used), resetDate: data.resetDate };
+}
+
+function hasCredits() {
+  const info = getCreditsInfo();
+  return info.remaining > 0;
+}
+
+function useCredit() {
+  const key = _creditsKey();
+  if (!key) return;
+  const info = getCreditsInfo();
+  const newData = { used: info.used + 1, limit: info.limit, resetDate: info.resetDate };
+  localStorage.setItem(key, JSON.stringify(newData));
+  // Update UI
+  updateCreditsUI();
+}
+
+function updateCreditsUI() {
+  const info = getCreditsInfo();
+  const badgeEl = document.getElementById('credits-remaining');
+  const statEl  = document.getElementById('stat-credits-value');
+  const barEl   = document.getElementById('credits-progress-bar');
+
+  if (badgeEl) badgeEl.textContent = info.remaining;
+
+  if (statEl) {
+    statEl.textContent = `${info.used} / ${info.limit}`;
+    statEl.className = 'stat-value';
+    if (info.remaining > 5) statEl.classList.add('green');
+    else if (info.remaining >= 3) statEl.style.color = '#ffd166';
+    else statEl.style.color = '#ff4d6d';
+  }
+
+  if (barEl) {
+    const pct = (info.used / info.limit) * 100;
+    barEl.style.width = `${pct}%`;
+    barEl.style.background = info.remaining > 5 ? 'var(--green)' : info.remaining >= 3 ? '#ffd166' : '#ff4d6d';
+  }
+}
+
 // ─── HTML Escape (previne XSS via output da IA) ─
 function escapeHtml(str) {
   const d = document.createElement('div');
@@ -11,6 +90,14 @@ function escapeHtml(str) {
 
 // ─── Core fetch wrapper ───────────────────────
 async function callClaude(action, data) {
+  // Check credits before calling
+  if (!hasCredits()) {
+    const info = getCreditsInfo();
+    const date = info.resetDate ? new Date(info.resetDate).toLocaleDateString('pt-BR') : 'próximo mês';
+    showCreditsExhaustedModal(date);
+    throw new Error(`Limite de ${CREDITS_LIMIT} gerações atingido este mês.`);
+  }
+
   const res = await fetch('/api/claude', {
     method:  'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -19,6 +106,9 @@ async function callClaude(action, data) {
 
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || 'Erro desconhecido');
+
+  // Only count successful calls
+  useCredit();
   return json.result;
 }
 
@@ -360,18 +450,16 @@ function updateApiKeyStatus(hasKey) {
 
 // ─── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
+  initCredits();
+  updateCreditsUI();
   initAiSettings();
 
-  // Re-init after navigating to settings (settings section becomes visible)
   document.querySelectorAll('[data-nav]').forEach(el => {
     el.addEventListener('click', () => {
-      if (el.dataset.nav === 'settings') {
-        setTimeout(initAiSettings, 50);
-      }
+      if (el.dataset.nav === 'settings') setTimeout(initAiSettings, 50);
     });
   });
 
-  // Also init when the AI tab is clicked in settings
   document.addEventListener('click', e => {
     const tab = e.target.closest?.('[data-tab="ai"]');
     if (tab) setTimeout(initAiSettings, 50);
