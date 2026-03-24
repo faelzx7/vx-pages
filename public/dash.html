@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VX Pages — Dashboard</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d2626'/><text y='.9em' font-size='70' x='10'>Vx</text></svg>">
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════
+     APP
+     ═══════════════════════════════════════════ -->
+<div id="app" class="visible">
+
+  <!-- ─── SIDEBAR ───────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-logo">
+        <img src="assets/logo.png" alt="VX Pages" style="width:100%;height:100%;object-fit:cover;border-radius:10px">
+      </div>
+      <div class="sidebar-brand">
+        <strong>VX <span>Pages</span></strong>
+        <small>Criador com IA</small>
+      </div>
+      <button class="sidebar-toggle-btn" onclick="toggleSidebar()" title="Recolher menu">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Principal</div>
+
+      <div class="nav-item" data-nav="dashboard">
+        <span class="nav-icon">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+        </span>
+        Dashboard
+      </div>
+
+      <div class="nav-item" data-nav="builder">
+        <span class="nav-icon">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+          </svg>
+        </span>
+        Criar com IA
+        <span class="nav-badge">NEW</span>
+      </div>
+
+      <div class="nav-item" data-nav="pages">
+        <span class="nav-icon">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+          </svg>
+        </span>
+        Minhas Páginas
+      </div>
+
+      <div class="nav-section-label">Treinamento</div>
+
+      <div class="nav-item" data-nav="training">
+        <span class="nav-icon">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M22 10v6M2 10l10-5 10 5-10 5-10-5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/>
+          </svg>
+        </span>
+        Centro de Treinamento
+      </div>
+
+      <div class="nav-section-label">Conta</div>
+
+      <div class="nav-item" data-nav="settings">
+        <span class="nav-icon">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+        </span>
+        Configurações
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-card">
+        <div class="user-avatar" id="user-avatar">?</div>
+        <div class="user-info">
+          <strong id="user-name">Carregando...</strong>
+          <small id="user-email"></small>
+        </div>
+        <div class="user-plan">PRO</div>
+      </div>
+      <button class="btn-signout" onclick="signOut()" title="Sair da conta">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
+        Sair
+      </button>
+    </div>
+  </aside>
+
+  <!-- ─── MAIN ──────────────────────────── -->
+  <main class="main">
+    <!-- Topbar -->
+    <header class="topbar">
+      <div class="topbar-title">
+        <span id="topbar-title">Dashboard</span>
+        <small id="topbar-sub">Bem-vindo de volta, Rafael!</small>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn-primary" onclick="navigate('builder'); setBuilderStep(1);" style="padding:8px 16px;font-size:0.82rem;">
+          + Criar Página
+        </button>
+        <div class="icon-btn notif-dot" title="Notificações">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/>
+          </svg>
+        </div>
+        <div class="icon-btn" title="Ajuda">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+      </div>
+    </header>
+
+    <!-- ════════════════════════════════════════
+         SECTIONS
+         ════════════════════════════════════════ -->
+    <div class="page-content">
+
+      <!-- ─── DASHBOARD ─────────────────── -->
+      <section class="section active" id="section-dashboard">
+
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div>
+            <h1 class="welcome-greeting">Olá, Rafael! 👋</h1>
+            <p class="welcome-sub">Aqui está o resumo da sua conta esta semana.</p>
+          </div>
+          <button class="btn-primary" onclick="navigate('builder'); setBuilderStep(1);" style="padding:12px 24px;font-size:0.88rem;white-space:nowrap;flex-shrink:0;width:auto">
+            + Criar Página com IA
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon stat-icon-green">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </div>
+              <div class="stat-change up">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                +2 esta semana
+              </div>
+            </div>
+            <div class="stat-value green">5</div>
+            <div class="stat-label">Páginas Criadas</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon stat-icon-blue">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+              </div>
+              <div class="stat-change up">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                +18% vs. semana passada
+              </div>
+            </div>
+            <div class="stat-value">6.029</div>
+            <div class="stat-label">Visitantes Totais</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon stat-icon-yellow">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+              </div>
+              <div class="stat-change up">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                +1.4pp este mês
+              </div>
+            </div>
+            <div class="stat-value green">9.2%</div>
+            <div class="stat-label">Taxa de Conversão</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-top">
+              <div class="stat-icon stat-icon-purple">
+                <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                </svg>
+              </div>
+              <div class="stat-change up">
+                <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                +67 esta semana
+              </div>
+            </div>
+            <div class="stat-value">555</div>
+            <div class="stat-label">Leads Gerados</div>
+          </div>
+        </div>
+
+        <div class="dash-grid">
+          <!-- Pages list -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Páginas Recentes</div>
+              <div class="card-action" onclick="navigate('pages')">Ver todas →</div>
+            </div>
+            <div class="page-list" id="dash-pages-list"></div>
+          </div>
+
+          <!-- Quick actions -->
+          <div class="card">
+            <div class="card-header">
+              <div class="card-title">Ações Rápidas</div>
+            </div>
+            <div class="quick-actions-grid">
+              <div class="qa-btn" onclick="navigate('builder'); setBuilderStep(1);">
+                <div class="qa-icon">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                  </svg>
+                </div>
+                <span class="qa-label">Criar com IA</span>
+              </div>
+              <div class="qa-btn" onclick="navigate('training')">
+                <div class="qa-icon">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <polygon points="5 3 19 12 5 21 5 3"/>
+                  </svg>
+                </div>
+                <span class="qa-label">Treinamentos</span>
+              </div>
+              <div class="qa-btn" onclick="showToast('Análise disponível em breve!', 'info')">
+                <div class="qa-icon">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/>
+                  </svg>
+                </div>
+                <span class="qa-label">Analytics</span>
+              </div>
+              <div class="qa-btn" onclick="showToast('Teste A/B em breve!', 'info')">
+                <div class="qa-icon">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/>
+                  </svg>
+                </div>
+                <span class="qa-label">Teste A/B</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Training progress teaser -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Seu Progresso nos Treinamentos</div>
+            <div class="card-action" onclick="navigate('training')">Ver treinamentos →</div>
+          </div>
+          <div class="training-progress-grid">
+            <div class="tp-item">
+              <div class="tp-header">
+                <span class="tp-name">🎯 Prospecção</span>
+                <span class="tp-pct">60%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:60%"></div></div>
+            </div>
+            <div class="tp-item">
+              <div class="tp-header">
+                <span class="tp-name">🤝 Reunião de Vendas</span>
+                <span class="tp-pct">33%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:33%"></div></div>
+            </div>
+            <div class="tp-item">
+              <div class="tp-header">
+                <span class="tp-name">📋 Onboarding</span>
+                <span class="tp-pct tp-pct-zero">0%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:0%"></div></div>
+            </div>
+            <div class="tp-item">
+              <div class="tp-header">
+                <span class="tp-name">✨ Criação de Páginas</span>
+                <span class="tp-pct">80%</span>
+              </div>
+              <div class="progress-bar"><div class="progress-fill" style="width:80%"></div></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── BUILDER ───────────────────── -->
+      <section class="section" id="section-builder">
+        <div class="page-header">
+          <h1>Criar Página com IA</h1>
+          <p>Responda algumas perguntas e a IA cria sua landing page otimizada.</p>
+        </div>
+
+        <div class="builder-wrap">
+          <!-- Steps sidebar -->
+          <div class="builder-sidebar">
+            <div style="font-size:0.82rem;font-weight:700;color:var(--gray-light);margin-bottom:4px">Progresso</div>
+
+            <div class="builder-step">
+              <div id="step-ind-1" class="step-indicator active">1</div>
+              <div class="step-text"><strong>Nicho & Produto</strong><small>Sobre o que é a página?</small></div>
+            </div>
+            <div class="step-line" id="step-line-1"></div>
+
+            <div class="builder-step">
+              <div id="step-ind-2" class="step-indicator">2</div>
+              <div class="step-text"><strong>Público-Alvo</strong><small>Quem você quer atingir?</small></div>
+            </div>
+            <div class="step-line" id="step-line-2"></div>
+
+            <div class="builder-step">
+              <div id="step-ind-3" class="step-indicator">3</div>
+              <div class="step-text"><strong>Oferta & CTA</strong><small>Qual é a proposta de valor?</small></div>
+            </div>
+            <div class="step-line" id="step-line-3"></div>
+
+            <div class="builder-step">
+              <div id="step-ind-4" class="step-indicator">4</div>
+              <div class="step-text"><strong>Design & Estilo</strong><small>Aparência da página</small></div>
+            </div>
+            <div class="step-line" id="step-line-4"></div>
+
+            <div class="builder-step">
+              <div id="step-ind-5" class="step-indicator">5</div>
+              <div class="step-text"><strong>Revisar & Publicar</strong><small>Revise e publique</small></div>
+            </div>
+
+            <div class="divider" style="margin-top:12px"></div>
+
+            <div style="background:var(--green-glow2);border:1px solid rgba(0,255,133,0.15);border-radius:var(--radius-sm);padding:14px;">
+              <div style="font-size:0.72rem;font-weight:700;color:var(--green);margin-bottom:6px">💡 DICA DA IA</div>
+              <div style="font-size:0.75rem;color:var(--gray-light);line-height:1.6">Quanto mais detalhes você fornecer, melhor será a página gerada. Descreva seu produto com clareza!</div>
+            </div>
+          </div>
+
+          <!-- Panel -->
+          <div class="builder-panel">
+            <div class="builder-tabs">
+              <div class="builder-tab active" onclick="switchBuilderTab('configurar',this)">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                Configurar
+              </div>
+              <div class="builder-tab" onclick="switchBuilderTab('preview',this)">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                Preview
+              </div>
+              <div class="builder-tab" onclick="switchBuilderTab('analytics',this)">
+                <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+                Analytics
+              </div>
+            </div>
+
+            <div id="panel-configurar">
+            <div class="builder-form">
+
+              <!-- Step 1 -->
+              <div class="builder-form-step" id="builder-step-1">
+                <div class="form-section">
+                  <h3>01 — Nicho & Produto</h3>
+                  <div class="form-group">
+                    <label>Nicho do produto/serviço</label>
+                    <select id="field-niche">
+                      <option value="">Selecione um nicho...</option>
+                      <option>Coaching & Mentoria</option>
+                      <option>Cursos Online</option>
+                      <option>Vendas & Negócios</option>
+                      <option>Saúde & Bem-estar</option>
+                      <option>Finanças & Investimentos</option>
+                      <option>Marketing Digital</option>
+                      <option>Tecnologia & SaaS</option>
+                      <option>Moda & Estilo</option>
+                      <option>Outro</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Nome do produto ou serviço</label>
+                    <input id="field-product" type="text" placeholder="Ex: Método Elite de Vendas">
+                  </div>
+                  <div class="form-group">
+                    <label>Descreva seu produto em detalhes (a IA usará isso)</label>
+                    <div class="ai-prompt-box">
+                      <textarea id="field-description" rows="5" placeholder="Ex: Programa de 8 semanas para profissionais de vendas que querem dobrar seus resultados usando técnicas avançadas de fechamento e neurociência..."></textarea>
+                      <div class="ai-prompt-actions">
+                        <span class="ai-tip">Pressione <span>Ctrl+Enter</span> para sugestão IA</span>
+                        <button class="btn-secondary" style="padding:5px 12px;font-size:0.75rem" onclick="aiSuggestDescription.call(this)">✨ Sugerir com IA</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Tipo de página</label>
+                    <div id="tipo-container" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+                      <div class="style-option selected" onclick="selectStyle(this)" style="text-align:left;padding:10px 12px"><div style="font-size:0.8rem;font-weight:600">VSL (Vídeo)</div></div>
+                      <div class="style-option" onclick="selectStyle(this)" style="text-align:left;padding:10px 12px"><div style="font-size:0.8rem;font-weight:600">Captura de Leads</div></div>
+                      <div class="style-option" onclick="selectStyle(this)" style="text-align:left;padding:10px 12px"><div style="font-size:0.8rem;font-weight:600">Página de Vendas</div></div>
+                      <div class="style-option" onclick="selectStyle(this)" style="text-align:left;padding:10px 12px"><div style="font-size:0.8rem;font-weight:600">Webinar</div></div>
+                      <div class="style-option" onclick="selectStyle(this)" style="text-align:left;padding:10px 12px"><div style="font-size:0.8rem;font-weight:600">Produto Físico</div></div>
+                      <div class="style-option" onclick="selectStyle(this)" style="text-align:left;padding:10px 12px"><div style="font-size:0.8rem;font-weight:600">Institucional</div></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 2 -->
+              <div class="builder-form-step" id="builder-step-2" style="display:none">
+                <div class="form-section">
+                  <h3>02 — Público-Alvo</h3>
+                  <div class="form-group">
+                    <label>Quem é seu cliente ideal?</label>
+                    <input id="field-audience" type="text" placeholder="Ex: Profissionais de vendas B2B entre 28-45 anos">
+                  </div>
+                  <div class="form-group">
+                    <label>Principais dores e problemas do seu público</label>
+                    <textarea rows="4" placeholder="Ex: Dificuldade de fechar clientes de alto ticket, medo de objeções, não sabe como qualificar leads..."></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label>Transformação que seu produto entrega</label>
+                    <div class="ai-prompt-box">
+                      <textarea id="field-transformations" rows="4" placeholder="Ex: Em 8 semanas, o cliente vai fechar 3x mais vendas, com mais confiança e um método replicável..."></textarea>
+                      <div class="ai-prompt-actions">
+                        <span class="ai-tip">Seja específico para melhores resultados</span>
+                        <button class="btn-secondary" style="padding:5px 12px;font-size:0.75rem" onclick="aiGenerateTransformations.call(this)">✨ Gerar com IA</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Nível de consciência do público</label>
+                    <select>
+                      <option>Inconsciente do problema</option>
+                      <option>Consciente do problema</option>
+                      <option selected>Consciente da solução</option>
+                      <option>Consciente do produto</option>
+                      <option>Pronto para comprar</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 3 -->
+              <div class="builder-form-step" id="builder-step-3" style="display:none">
+                <div class="form-section">
+                  <h3>03 — Oferta & Call to Action</h3>
+                  <div class="form-group">
+                    <label>Headline principal (deixe em branco para IA gerar)</label>
+                    <div class="ai-prompt-box">
+                      <textarea id="field-headline" rows="3" placeholder="Ex: Como Faturar R$30k/mês com Vendas de Alto Ticket..."></textarea>
+                      <div class="ai-prompt-actions">
+                        <span class="ai-tip">A IA vai gerar 3 opções de headline</span>
+                        <button class="btn-secondary" style="padding:5px 12px;font-size:0.75rem" onclick="aiGenerateHeadlines.call(this)">✨ Gerar Headlines</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Texto do botão CTA</label>
+                    <input id="field-promise" type="text" placeholder="Ex: QUERO COMEÇAR AGORA →">
+                  </div>
+                  <div class="form-group">
+                    <label>Urgência / Escassez</label>
+                    <select>
+                      <option>Sem urgência</option>
+                      <option>Vagas limitadas</option>
+                      <option>Oferta por tempo limitado</option>
+                      <option>Bônus para os primeiros</option>
+                      <option>Timer com contagem regressiva</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Preço ou investimento (opcional)</label>
+                    <input id="field-price" type="text" placeholder="Ex: R$ 997 ou 12x R$ 97">
+                  </div>
+                  <div class="form-group">
+                    <label>Número de provas sociais / depoimentos disponíveis</label>
+                    <select>
+                      <option>Nenhum ainda</option>
+                      <option>1 a 5</option>
+                      <option selected>6 a 20</option>
+                      <option>Mais de 20</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 4 -->
+              <div class="builder-form-step" id="builder-step-4" style="display:none">
+                <div class="form-section">
+                  <h3>04 — Design & Estilo Visual</h3>
+                  <div class="form-group">
+                    <label>Estilo visual da página</label>
+                    <div class="style-selector">
+                      <div class="style-option selected" onclick="selectStyle(this)">
+                        <div class="style-preview" style="background:linear-gradient(135deg,#052F33,#084E59)"></div>
+                        Dark Profissional
+                      </div>
+                      <div class="style-option" onclick="selectStyle(this)">
+                        <div class="style-preview" style="background:linear-gradient(135deg,#f8f9fa,#e9ecef)"></div>
+                        Light & Clean
+                      </div>
+                      <div class="style-option" onclick="selectStyle(this)">
+                        <div class="style-preview" style="background:linear-gradient(135deg,#1a0533,#3d0f7a)"></div>
+                        Bold & Impactante
+                      </div>
+                      <div class="style-option" onclick="selectStyle(this)">
+                        <div class="style-preview" style="background:linear-gradient(135deg,#fff5eb,#ffe0b2)"></div>
+                        Quente & Humano
+                      </div>
+                      <div class="style-option" onclick="selectStyle(this)">
+                        <div class="style-preview" style="background:linear-gradient(135deg,#0a1628,#0d2b5e)"></div>
+                        Corporativo
+                      </div>
+                      <div class="style-option" onclick="selectStyle(this)">
+                        <div class="style-preview" style="background:linear-gradient(135deg,#1a2e1a,#2d5a27)"></div>
+                        Natural & Orgânico
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Paleta de cores principal</label>
+                    <div class="color-palette">
+                      <div class="palette-item selected" style="background:#00ff85" onclick="selectPalette(this)" title="Verde VX"></div>
+                      <div class="palette-item" style="background:#4cc9f0" onclick="selectPalette(this)" title="Azul Elétrico"></div>
+                      <div class="palette-item" style="background:#7b2fff" onclick="selectPalette(this)" title="Roxo Premium"></div>
+                      <div class="palette-item" style="background:#ff4d6d" onclick="selectPalette(this)" title="Vermelho Poder"></div>
+                      <div class="palette-item" style="background:#ffd166" onclick="selectPalette(this)" title="Dourado"></div>
+                      <div class="palette-item" style="background:#ff6b35" onclick="selectPalette(this)" title="Laranja Energia"></div>
+                      <div class="palette-item" style="background:#06d6a0" onclick="selectPalette(this)" title="Verde Esmeralda"></div>
+                      <div class="palette-item" style="background:#ffffff" onclick="selectPalette(this)" title="Branco Puro" style="border:1px solid var(--border)"></div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Seções a incluir na página</label>
+                    <div id="secoes-container" style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" checked style="accent-color:var(--green)"> Hero / Headline</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" checked style="accent-color:var(--green)"> Benefícios</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" checked style="accent-color:var(--green)"> Sobre mim / Autoridade</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" checked style="accent-color:var(--green)"> Depoimentos</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" style="accent-color:var(--green)"> FAQ</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" style="accent-color:var(--green)"> Garantia</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" style="accent-color:var(--green)"> Bônus</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" style="accent-color:var(--green)"> Timer / Urgência</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" style="accent-color:var(--green)"> Vídeo VSL</label>
+                      <label style="display:flex;align-items:center;gap:8px;font-size:0.8rem;cursor:pointer;padding:8px 10px;background:var(--bg-dark);border:1px solid var(--border);border-radius:6px;"><input type="checkbox" style="accent-color:var(--green)"> Formulário / Checkout</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Step 5 -->
+              <div class="builder-form-step" id="builder-step-5" style="display:none">
+                <div class="form-section">
+                  <h3>05 — Revisar & Publicar</h3>
+                  <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:var(--radius-sm);padding:20px;margin-bottom:16px">
+                    <div style="font-size:0.8rem;font-weight:700;margin-bottom:12px;color:var(--green)">✅ Resumo da Página Gerada</div>
+                    <div style="display:grid;gap:8px;font-size:0.82rem">
+                      <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Tipo:</span><span id="summary-tipo">—</span></div>
+                      <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Estilo:</span><span id="summary-estilo">—</span></div>
+                      <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Seções:</span><span id="summary-secoes">—</span></div>
+                      <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">CTA:</span><span id="summary-cta">—</span></div>
+                      <div style="display:flex;justify-content:space-between"><span style="color:var(--gray)">Score IA:</span><span id="summary-score" style="color:var(--green);font-weight:700">—</span></div>
+                    </div>
+                  </div>
+                  <div class="preview-pane">
+                    <div class="preview-browser-bar">
+                      <div class="browser-dots"><span></span><span></span><span></span></div>
+                      <div class="browser-url">vxpages.io/p/seu-produto</div>
+                    </div>
+                    <div id="preview-pane-content" class="preview-content" style="padding:0;overflow:hidden">
+                      <div class="preview-placeholder" id="preview-placeholder">
+                        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                        </svg>
+                        <p>Clique em "Gerar Página" para ver o preview</p>
+                      </div>
+                      <iframe id="page-preview-iframe" style="width:100%;height:600px;border:none;border-radius:0 0 8px 8px;display:none;"></iframe>
+                    </div>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:12px;display:none" id="preview-actions">
+                    <button class="btn-secondary" onclick="openPageFullscreen()" style="font-size:0.82rem;padding:8px 16px">↗ Ver em tela cheia</button>
+                  </div>
+                  <div style="display:flex;gap:10px;margin-top:16px">
+                    <div class="form-group" style="flex:1;margin:0">
+                      <label>URL personalizada</label>
+                      <input type="text" value="vxpages.io/p/" placeholder="minha-pagina">
+                    </div>
+                    <div class="form-group" style="flex:1;margin:0">
+                      <label>Domínio customizado (opcional)</label>
+                      <input type="text" placeholder="meusite.com.br">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div><!-- /builder-form -->
+
+            <div class="builder-actions">
+              <button class="btn-secondary" id="btn-prev" onclick="prevBuilderStep()" style="display:none">← Voltar</button>
+              <button class="btn-secondary" onclick="navigate('pages')">Cancelar</button>
+              <button class="btn-primary" id="btn-next" onclick="nextBuilderStep()">Próximo →</button>
+              <button class="btn-primary" id="btn-export" onclick="exportPage()" style="display:none;background:linear-gradient(90deg,var(--green),var(--green-dim))">🚀 Publicar Página</button>
+            </div>
+            </div><!-- /panel-configurar -->
+
+            <!-- Panel: Preview -->
+            <div id="panel-preview" style="display:none;flex:1;display:none;flex-direction:column">
+              <div style="flex:1;padding:20px;overflow-y:auto">
+                <div class="preview-browser-bar" style="border-radius:var(--radius-sm) var(--radius-sm) 0 0;background:var(--bg-dark);padding:10px 16px;display:flex;align-items:center;gap:8px;border:1px solid var(--border);border-bottom:none">
+                  <div class="browser-dots"><span></span><span></span><span></span></div>
+                  <div class="browser-url" style="flex:1;text-align:center;font-size:0.75rem;color:var(--gray)">vxpages.io/p/seu-produto</div>
+                </div>
+                <div id="preview-tab-pane" style="border:1px solid var(--border);border-radius:0 0 var(--radius-sm) var(--radius-sm);min-height:400px;background:var(--bg-card2);overflow:hidden">
+                  <div style="padding:40px;text-align:center;color:var(--gray)">
+                    <div style="font-size:2.5rem;margin-bottom:12px">👁️</div>
+                    <div style="font-size:0.85rem;font-weight:600;margin-bottom:6px">Nenhuma página gerada</div>
+                    <div style="font-size:0.78rem">Complete o builder e gere sua página para ver o preview aqui.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Panel: Analytics -->
+            <div id="panel-analytics" style="display:none;padding:24px;overflow-y:auto">
+              <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px">
+                <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+                  <div style="font-size:0.72rem;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Visitas totais</div>
+                  <div style="font-size:1.6rem;font-weight:700;color:var(--text)">1.247</div>
+                  <div style="font-size:0.72rem;color:var(--green);margin-top:4px">↑ 12% vs semana passada</div>
+                </div>
+                <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+                  <div style="font-size:0.72rem;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Taxa de conversão</div>
+                  <div style="font-size:1.6rem;font-weight:700;color:var(--text)">4,2%</div>
+                  <div style="font-size:0.72rem;color:var(--green);margin-top:4px">↑ 0,8% vs semana passada</div>
+                </div>
+                <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+                  <div style="font-size:0.72rem;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Leads gerados</div>
+                  <div style="font-size:1.6rem;font-weight:700;color:var(--text)">52</div>
+                  <div style="font-size:0.72rem;color:var(--green);margin-top:4px">↑ 8 vs semana passada</div>
+                </div>
+                <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+                  <div style="font-size:0.72rem;color:var(--gray);margin-bottom:6px;text-transform:uppercase;letter-spacing:.05em">Tempo médio na página</div>
+                  <div style="font-size:1.6rem;font-weight:700;color:var(--text)">2m 34s</div>
+                  <div style="font-size:0.72rem;color:#ff4d6d;margin-top:4px">↓ 12s vs semana passada</div>
+                </div>
+              </div>
+              <div style="background:var(--bg-dark);border:1px solid var(--border);border-radius:var(--radius-sm);padding:16px">
+                <div style="font-size:0.78rem;font-weight:600;margin-bottom:14px;color:var(--text)">Visitas por dia (últimos 7 dias)</div>
+                <div style="display:flex;align-items:flex-end;gap:8px;height:80px">
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:100%;background:var(--green);opacity:.7;border-radius:3px 3px 0 0;height:45%"></div>
+                    <div style="font-size:0.62rem;color:var(--gray)">Seg</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:100%;background:var(--green);opacity:.7;border-radius:3px 3px 0 0;height:60%"></div>
+                    <div style="font-size:0.62rem;color:var(--gray)">Ter</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:100%;background:var(--green);opacity:.7;border-radius:3px 3px 0 0;height:40%"></div>
+                    <div style="font-size:0.62rem;color:var(--gray)">Qua</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:100%;background:var(--green);opacity:.7;border-radius:3px 3px 0 0;height:75%"></div>
+                    <div style="font-size:0.62rem;color:var(--gray)">Qui</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:100%;background:var(--green);opacity:.7;border-radius:3px 3px 0 0;height:90%"></div>
+                    <div style="font-size:0.62rem;color:var(--gray)">Sex</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:100%;background:var(--green);opacity:.85;border-radius:3px 3px 0 0;height:100%"></div>
+                    <div style="font-size:0.62rem;color:var(--gray)">Sáb</div>
+                  </div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+                    <div style="width:100%;background:var(--green);opacity:.7;border-radius:3px 3px 0 0;height:65%"></div>
+                    <div style="font-size:0.62rem;color:var(--gray)">Dom</div>
+                  </div>
+                </div>
+              </div>
+              <div style="margin-top:12px;font-size:0.72rem;color:var(--gray);text-align:center">Dados demonstrativos · Analytics completo disponível no plano Pro</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── MY PAGES ──────────────────── -->
+      <section class="section" id="section-pages">
+        <div class="page-header">
+          <h1>Minhas Páginas</h1>
+          <p>Todas as suas landing pages criadas com IA.</p>
+        </div>
+        <div style="display:flex;gap:12px;margin-bottom:24px;align-items:center">
+          <input type="text" placeholder="🔍 Buscar páginas..." style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;width:280px;font-family:Inter,sans-serif">
+          <select style="background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;font-family:Inter,sans-serif">
+            <option>Todas as páginas</option>
+            <option>Publicadas</option>
+            <option>Rascunhos</option>
+          </select>
+          <button class="btn-primary" onclick="navigate('builder'); setBuilderStep(1);" style="margin-left:auto">+ Nova Página</button>
+        </div>
+        <div class="pages-grid" id="pages-grid"></div>
+      </section>
+
+      <!-- ─── TRAINING ──────────────────── -->
+      <section class="section" id="section-training">
+        <!-- Overview -->
+        <div id="modules-overview">
+          <div class="training-hero">
+            <div class="training-hero-badge">Centro de Treinamento</div>
+            <h2>Domine o processo <span>completo de vendas</span></h2>
+            <p>Desde prospectar clientes até criar páginas que convertem. Avance módulo a módulo no seu ritmo.</p>
+            <div class="training-hero-stats">
+              <div class="th-stat">
+                <div class="th-stat-value">4</div>
+                <div class="th-stat-label">Módulos</div>
+              </div>
+              <div class="th-divider"></div>
+              <div class="th-stat">
+                <div class="th-stat-value">24</div>
+                <div class="th-stat-label">Aulas</div>
+              </div>
+              <div class="th-divider"></div>
+              <div class="th-stat">
+                <div class="th-stat-value" style="color:var(--green)">~5h</div>
+                <div class="th-stat-label">Conteúdo</div>
+              </div>
+            </div>
+            <div class="progress-bar-wrap">
+              <div class="progress-label">
+                <span id="overall-label">Carregando...</span>
+                <span>4 módulos</span>
+              </div>
+              <div class="progress-bar" style="height:8px">
+                <div class="progress-fill" id="overall-progress" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="modules-grid">
+
+            <!-- Prospecção -->
+            <div class="module-card" data-module="prospecting">
+              <div class="module-banner module-banner-prospecting">
+                <div class="module-num-badge">Módulo 01</div>
+                <div class="module-icon">🎯</div>
+                <div class="module-banner-title">Prospecção</div>
+              </div>
+              <div class="module-body">
+                <div class="module-desc">Aprenda a identificar, atrair e engajar clientes ideais para o seu negócio digital com estratégias comprovadas.</div>
+                <div class="module-footer">
+                  <div class="module-meta">
+                    <span class="module-lessons-pill">6 aulas</span>
+                    <span class="module-duration">~1h 17min</span>
+                  </div>
+                  <div class="module-progress-mini">
+                    <div class="mini-bar"><div class="mini-fill" style="width:60%"></div></div>
+                    <span>60%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reunião de Vendas -->
+            <div class="module-card" data-module="sales">
+              <div class="module-banner module-banner-sales">
+                <div class="module-num-badge">Módulo 02</div>
+                <div class="module-icon">🤝</div>
+                <div class="module-banner-title">Reunião de Vendas</div>
+              </div>
+              <div class="module-body">
+                <div class="module-desc">Domine o framework completo para conduzir reuniões de vendas de alto impacto e fechar mais negócios.</div>
+                <div class="module-footer">
+                  <div class="module-meta">
+                    <span class="module-lessons-pill">6 aulas</span>
+                    <span class="module-duration">~1h 43min</span>
+                  </div>
+                  <div class="module-progress-mini">
+                    <div class="mini-bar"><div class="mini-fill" style="width:33%"></div></div>
+                    <span>33%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Onboarding -->
+            <div class="module-card" data-module="onboarding">
+              <div class="module-banner module-banner-onboarding">
+                <div class="module-num-badge">Módulo 03</div>
+                <div class="module-icon">📋</div>
+                <div class="module-banner-title">Onboarding & Briefing</div>
+              </div>
+              <div class="module-body">
+                <div class="module-desc">Como receber novos clientes profissionalmente e coletar todas as informações para criar páginas perfeitas.</div>
+                <div class="module-footer">
+                  <div class="module-meta">
+                    <span class="module-lessons-pill">6 aulas</span>
+                    <span class="module-duration">~1h 04min</span>
+                  </div>
+                  <div class="module-progress-mini">
+                    <div class="mini-bar"><div class="mini-fill" style="width:0%"></div></div>
+                    <span>0%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Criação -->
+            <div class="module-card" data-module="creation">
+              <div class="module-banner module-banner-creation">
+                <div class="module-num-badge">Módulo 04</div>
+                <div class="module-icon">✨</div>
+                <div class="module-banner-title">Criação de Páginas</div>
+              </div>
+              <div class="module-body">
+                <div class="module-desc">Use todo o poder da IA do VX Pages para criar landing pages de alta conversão em poucos minutos.</div>
+                <div class="module-footer">
+                  <div class="module-meta">
+                    <span class="module-lessons-pill">6 aulas</span>
+                    <span class="module-duration">~1h 23min</span>
+                  </div>
+                  <div class="module-progress-mini">
+                    <div class="mini-bar"><div class="mini-fill" style="width:80%"></div></div>
+                    <span>80%</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div><!-- /modules-overview -->
+
+        <!-- Module Detail -->
+        <div id="module-detail" class="module-detail">
+          <div class="breadcrumb">
+            <a onclick="closeModule()">← Centro de Treinamento</a>
+            <svg width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            <span id="module-detail-title"></span>
+          </div>
+          <div class="card" style="margin-bottom:20px">
+            <div id="module-detail-desc" style="font-size:0.88rem;color:var(--gray);margin-bottom:16px"></div>
+            <div class="lesson-list" id="lesson-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── SETTINGS ──────────────────── -->
+      <section class="section" id="section-settings">
+        <div class="page-header">
+          <h1>Configurações</h1>
+          <p>Gerencie sua conta, plano e preferências.</p>
+        </div>
+        <div class="settings-grid">
+          <div class="settings-nav">
+            <div class="settings-nav-item active" data-tab="profile">👤 Perfil</div>
+            <div class="settings-nav-item" data-tab="plan">💎 Plano</div>
+            <div class="settings-nav-item" data-tab="integrations">🔗 Integrações</div>
+            <div class="settings-nav-item" data-tab="notifications">🔔 Notificações</div>
+            <div class="settings-nav-item" data-tab="domain">🌐 Domínio</div>
+          </div>
+          <div>
+
+            <!-- Profile -->
+            <div id="settings-profile" class="settings-section active">
+              <div class="settings-card">
+                <h3>Informações Pessoais</h3>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+                  <div class="form-group" style="margin:0">
+                    <label>Nome completo</label>
+                    <input type="text" value="Rafael Almeida" style="background:var(--bg-dark);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;width:100%;font-family:Inter,sans-serif">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label>E-mail</label>
+                    <input type="email" value="rafael@vxpages.com" style="background:var(--bg-dark);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;width:100%;font-family:Inter,sans-serif">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label>Telefone / WhatsApp</label>
+                    <input type="text" placeholder="+55 (11) 99999-9999" style="background:var(--bg-dark);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;width:100%;font-family:Inter,sans-serif">
+                  </div>
+                  <div class="form-group" style="margin:0">
+                    <label>Empresa / Marca</label>
+                    <input type="text" placeholder="Minha Empresa Ltda." style="background:var(--bg-dark);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;width:100%;font-family:Inter,sans-serif">
+                  </div>
+                </div>
+                <button class="btn-primary" style="margin-top:16px;width:auto;padding:10px 24px" onclick="showToast('Perfil salvo com sucesso!','success')">Salvar alterações</button>
+              </div>
+              <div class="settings-card">
+                <h3>Segurança</h3>
+                <div class="setting-row">
+                  <div><div class="setting-label">Senha</div><div class="setting-desc">Última alteração há 30 dias</div></div>
+                  <button class="btn-secondary" onclick="showToast('E-mail de redefinição enviado!','success')">Alterar senha</button>
+                </div>
+                <div class="setting-row">
+                  <div><div class="setting-label">Autenticação em 2 fatores</div><div class="setting-desc">Adicione uma camada extra de segurança</div></div>
+                  <label class="toggle"><input type="checkbox"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Plan -->
+            <div id="settings-plan" class="settings-section">
+              <div class="settings-card">
+                <h3>Seu Plano Atual</h3>
+                <div style="display:flex;align-items:center;gap:16px;padding:20px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border);margin-bottom:16px">
+                  <div style="flex:1">
+                    <div style="font-size:1.1rem;font-weight:800;margin-bottom:4px">PRO <span class="plan-badge pro">Ativo</span></div>
+                    <div style="font-size:0.8rem;color:var(--gray)">Renova em 20 Abr 2026 · R$ 197/mês</div>
+                  </div>
+                  <button class="btn-secondary">Gerenciar assinatura</button>
+                </div>
+                <div style="display:grid;gap:10px">
+                  <div style="font-size:0.85rem;color:var(--gray-light)">✅ Páginas ilimitadas</div>
+                  <div style="font-size:0.85rem;color:var(--gray-light)">✅ IA sem limite de gerações</div>
+                  <div style="font-size:0.85rem;color:var(--gray-light)">✅ Domínio customizado</div>
+                  <div style="font-size:0.85rem;color:var(--gray-light)">✅ Integrações premium</div>
+                  <div style="font-size:0.85rem;color:var(--gray-light)">✅ Suporte prioritário</div>
+                  <div style="font-size:0.85rem;color:var(--gray-light)">✅ Teste A/B</div>
+                  <div style="font-size:0.85rem;color:var(--gray-light)">✅ Analytics avançado</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- AI -->
+            <div id="settings-ai" class="settings-section">
+              <div class="settings-card">
+                <h3>✨ Claude AI — Inteligência da Plataforma</h3>
+                <div style="font-size:0.85rem;color:var(--gray);margin-bottom:20px;line-height:1.6">
+                  O VX Pages usa o <strong style="color:var(--white)">Claude claude-opus-4-6</strong> da Anthropic para gerar descrições, headlines e páginas completas.
+                  Insira sua API Key para ativar todos os recursos de IA.
+                </div>
+                <div class="setting-row" style="margin-bottom:16px">
+                  <div>
+                    <div class="setting-label">Status da conexão</div>
+                    <div class="setting-desc" id="api-key-status"><span style="color:var(--gray)">● Não configurado</span></div>
+                  </div>
+                </div>
+                <div class="form-group" style="margin-bottom:12px">
+                  <label>API Key do Claude (Anthropic)</label>
+                  <div style="display:flex;gap:10px">
+                    <input
+                      id="claude-api-key-input"
+                      type="text"
+                      placeholder="sk-ant-api03-..."
+                      autocomplete="off"
+                      style="flex:1;background:var(--bg-dark);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;font-family:monospace"
+                    >
+                    <button class="btn-primary" style="width:auto;padding:10px 20px;flex-shrink:0" onclick="saveAiApiKey()">Salvar</button>
+                  </div>
+                  <div style="margin-top:8px;font-size:0.75rem;color:var(--gray)">
+                    Obtenha sua key em <strong style="color:var(--green)">console.anthropic.com</strong> · Salva apenas no seu navegador (localStorage)
+                  </div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap">
+                  <button class="btn-secondary" style="font-size:0.8rem;padding:8px 16px" onclick="clearAiApiKey()">Remover Key</button>
+                  <button class="btn-secondary" style="font-size:0.8rem;padding:8px 16px" onclick="navigate('builder'); setBuilderStep(1);">Testar no Builder →</button>
+                </div>
+              </div>
+              <div class="settings-card">
+                <h3>Recursos de IA disponíveis</h3>
+                ${[
+                  { icon:'✍️', name:'Sugerir Descrição', desc:'Gera uma descrição do seu produto com copywriting persuasivo' },
+                  { icon:'🔄', name:'Gerar Transformações', desc:'Lista as transformações que seu cliente vai conquistar' },
+                  { icon:'💥', name:'Gerar Headlines', desc:'Cria 3 opções de headline de alta conversão para escolher' },
+                  { icon:'🚀', name:'Gerar Página Completa', desc:'Gera toda a estrutura da landing page (hero, benefícios, CTA, depoimento)' },
+                ].map(f => `
+                  <div class="setting-row">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      <div style="font-size:1.4rem">${f.icon}</div>
+                      <div><div class="setting-label">${f.name}</div><div class="setting-desc">${f.desc}</div></div>
+                    </div>
+                    <span style="font-size:0.72rem;color:var(--green);font-weight:600;background:var(--green-glow2);padding:4px 10px;border-radius:20px;border:1px solid rgba(0,255,133,0.2)">Ativo</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Integrations -->
+            <div id="settings-integrations" class="settings-section">
+              <div class="settings-card">
+                <h3>Integrações Disponíveis</h3>
+                ${[
+                  {name:'ActiveCampaign',  icon:'📧', desc:'E-mail marketing e automação',    connected:true},
+                  {name:'RD Station',       icon:'📊', desc:'CRM e automação de marketing',    connected:false},
+                  {name:'Hotmart',          icon:'🔥', desc:'Plataforma de produtos digitais', connected:true},
+                  {name:'Eduzz',            icon:'💰', desc:'Plataforma de vendas',            connected:false},
+                  {name:'Google Analytics', icon:'📈', desc:'Analytics de tráfego',            connected:false},
+                  {name:'Facebook Pixel',   icon:'🎯', desc:'Pixel para rastreamento de ads',  connected:true},
+                  {name:'Zapier',           icon:'⚡', desc:'Automações sem código',           connected:false},
+                  {name:'WhatsApp API',     icon:'💬', desc:'Notificações e follow-up',        connected:false},
+                ].map(i => `
+                  <div class="setting-row">
+                    <div style="display:flex;align-items:center;gap:12px">
+                      <div style="font-size:1.4rem">${i.icon}</div>
+                      <div><div class="setting-label">${i.name}</div><div class="setting-desc">${i.desc}</div></div>
+                    </div>
+                    <button class="btn-secondary" style="font-size:0.78rem;padding:7px 14px" onclick="showToast('${i.connected ? i.name + ' desconectado' : i.name + ' conectado! ✅'}', '${i.connected ? 'info' : 'success'}')">
+                      ${i.connected ? '✅ Conectado' : 'Conectar'}
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Notifications -->
+            <div id="settings-notifications" class="settings-section">
+              <div class="settings-card">
+                <h3>Preferências de Notificação</h3>
+                ${[
+                  {label:'Novo lead na página',         desc:'Notificar quando alguém converter',       checked:true},
+                  {label:'Relatório semanal',            desc:'Resumo de performance toda segunda-feira', checked:true},
+                  {label:'Página fora do ar',            desc:'Alertas de uptime das suas páginas',       checked:true},
+                  {label:'Novos módulos de treinamento', desc:'Quando novos conteúdos forem publicados',  checked:false},
+                  {label:'Dicas e atualizações',         desc:'Newsletter com melhores práticas',         checked:false},
+                ].map(n => `
+                  <div class="setting-row">
+                    <div><div class="setting-label">${n.label}</div><div class="setting-desc">${n.desc}</div></div>
+                    <label class="toggle"><input type="checkbox" ${n.checked?'checked':''}><span class="toggle-slider"></span></label>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <!-- Domain -->
+            <div id="settings-domain" class="settings-section">
+              <div class="settings-card">
+                <h3>Domínio Customizado</h3>
+                <div style="font-size:0.85rem;color:var(--gray);margin-bottom:16px;line-height:1.6">
+                  Conecte seu próprio domínio para que suas páginas sejam publicadas em <strong style="color:var(--white)">seusite.com.br</strong> em vez de vxpages.io.
+                </div>
+                <div style="display:flex;gap:10px">
+                  <input type="text" placeholder="Ex: meusite.com.br" style="flex:1;background:var(--bg-dark);border:1px solid var(--border-light);border-radius:var(--radius-sm);padding:10px 14px;color:var(--white);font-size:0.88rem;outline:none;font-family:Inter,sans-serif">
+                  <button class="btn-primary" style="width:auto;padding:10px 20px" onclick="showToast('Verificando DNS...','info')">Verificar DNS</button>
+                </div>
+                <div style="margin-top:16px;padding:14px;background:var(--bg-dark);border-radius:var(--radius-sm);border:1px solid var(--border)">
+                  <div style="font-size:0.75rem;color:var(--green);font-weight:700;margin-bottom:8px">📋 CONFIGURAÇÃO DNS</div>
+                  <div style="font-size:0.75rem;color:var(--gray);font-family:monospace;line-height:2">
+                    Tipo: CNAME &nbsp;&nbsp; Nome: @ &nbsp;&nbsp; Valor: pages.vxpages.io
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+    </div><!-- /page-content -->
+  </main>
+</div><!-- /app -->
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script src="js/app.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/ai.js"></script>
+<script>
+  // ─── Auth guard ───────────────────────────────
+  requireAuth();
+
+  // Sidebar toggle
+  window.toggleSidebar = function() {
+    const sidebar = document.querySelector('.sidebar');
+    const main    = document.querySelector('.main');
+    const collapsed = sidebar.classList.toggle('collapsed');
+    main.classList.toggle('sidebar-collapsed', collapsed);
+  };
+
+  // Builder tab switching
+  window.switchBuilderTab = function(name, tabEl) {
+    // update active tab
+    tabEl.closest('.builder-tabs').querySelectorAll('.builder-tab').forEach(t => t.classList.remove('active'));
+    tabEl.classList.add('active');
+    // show/hide panels
+    ['configurar','preview','analytics'].forEach(t => {
+      const p = document.getElementById('panel-' + t);
+      if (p) p.style.display = t === name ? (t === 'configurar' ? 'block' : 'flex') : 'none';
+    });
+    // fix analytics flex
+    const pa = document.getElementById('panel-analytics');
+    if (pa && name === 'analytics') pa.style.display = 'block';
+  };
+
+  // Builder nav buttons logic
+  const origSetBuilderStep = setBuilderStep;
+  window.setBuilderStep = function(n) {
+    origSetBuilderStep(n);
+    const prev   = document.getElementById('btn-prev');
+    const next   = document.getElementById('btn-next');
+    const export_ = document.getElementById('btn-export');
+    if (prev)   prev.style.display   = n > 1    ? 'inline-flex' : 'none';
+    if (next)   next.style.display   = n < 5    ? 'inline-flex' : 'none';
+    if (export_) export_.style.display = n === 5 ? 'inline-flex' : 'none';
+    if (n === 5) { next && (next.textContent = 'Gerar Página ✨'); }
+    if (n < 5)  { next && (next.textContent = 'Próximo →'); }
+  };
+  // Override nextBuilderStep to handle generate trigger
+  window.nextBuilderStep = function() {
+    if (builderStep === 4) {
+      setBuilderStep(5);
+      setTimeout(aiGeneratePage, 300);
+    } else if (builderStep < 5) {
+      setBuilderStep(builderStep + 1);
+    }
+  };
+</script>
+</body>
+</html>

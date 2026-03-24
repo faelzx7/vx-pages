@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VX Pages — Entrar</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d2626'/><text y='.9em' font-size='70' x='10'>Vx</text></svg>">
+  <!-- Google Identity Services -->
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #052F33;
+      --bg-card:   #084E59;
+      --bg-card2:  #073d47;
+      --border:    rgba(255,255,255,.08);
+      --green:     #00FF85;
+      --green-glow:rgba(0,255,133,.15);
+      --text:      #FFFFFF;
+      --gray:      #7ab5be;
+      --radius:    14px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-optical-sizing: auto;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .login-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* Logo */
+    .logo-block {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 14px;
+    }
+    .logo-img {
+      width: 72px;
+      height: 72px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 0 40px rgba(0,255,133,.25);
+    }
+    .logo-img img { width: 100%; height: 100%; object-fit: cover; }
+    .logo-title {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+    .logo-title span { color: var(--green); }
+    .logo-sub {
+      font-size: 0.88rem;
+      color: var(--gray);
+      text-align: center;
+      line-height: 1.6;
+      max-width: 300px;
+    }
+
+    /* Card */
+    .login-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px 28px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .login-card h2 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text);
+      text-align: center;
+    }
+    .login-card .sub {
+      font-size: 0.82rem;
+      color: var(--gray);
+      text-align: center;
+      margin-top: -12px;
+      line-height: 1.5;
+    }
+
+    /* Google button */
+    #g-signin-hidden {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 13px 20px;
+      background: #fff;
+      color: #1f1f1f;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s, transform .15s;
+    }
+    .btn-google:hover { opacity: .93; transform: translateY(-1px); }
+    .btn-google:active { transform: translateY(0); opacity: .85; }
+    .btn-google:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--gray);
+      font-size: 0.75rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--border);
+    }
+
+    .terms {
+      font-size: 0.72rem;
+      color: var(--gray);
+      text-align: center;
+      line-height: 1.7;
+    }
+    .terms a {
+      color: var(--green);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .terms a:hover { text-decoration: underline; }
+
+    /* Bottom link */
+    .signup-link {
+      font-size: 0.78rem;
+      color: var(--gray);
+      text-align: center;
+    }
+    .signup-link a {
+      color: var(--green);
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .signup-link a:hover { text-decoration: underline; }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 9999;
+    }
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 0.83rem;
+      color: var(--text);
+      animation: toast-in .2s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,.4);
+      min-width: 220px;
+      max-width: 320px;
+    }
+    @keyframes toast-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+    .toast.success { border-color: rgba(0,255,133,.3); }
+    .toast.error   { border-color: rgba(255,77,109,.3); }
+    .toast.info    { border-color: rgba(100,180,255,.3); }
+    .toast-close { margin-left: auto; cursor: pointer; color: var(--gray); font-size: 1rem; line-height: 1; }
+    .toast-close:hover { color: var(--text); }
+
+    /* Loading spinner for button */
+    .g-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(31,31,31,.3);
+      border-top-color: #1f1f1f;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+<div class="login-wrap">
+
+  <!-- Logo -->
+  <div class="logo-block">
+    <div class="logo-img">
+      <img src="assets/logo.png" alt="VX Pages">
+    </div>
+    <div>
+      <div class="logo-title">VX <span>Pages</span></div>
+    </div>
+    <p class="logo-sub">Crie landing pages de alta conversão com Inteligência Artificial em minutos.</p>
+  </div>
+
+  <!-- Card -->
+  <div class="login-card">
+    <h2>Acesse sua conta</h2>
+    <p class="sub">Entre com sua conta Google para continuar</p>
+
+    <!-- Hidden real Google button -->
+    <div id="g-signin-hidden"></div>
+
+    <button class="btn-google" id="login-btn" onclick="doLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Continuar com Google
+    </button>
+
+    <div class="divider">ou</div>
+
+    <p class="terms">
+      Ao entrar, você concorda com os<br>
+      <a href="#">Termos de Uso</a> e <a href="#">Política de Privacidade</a>
+    </p>
+  </div>
+
+  <p class="signup-link">
+    Não tem conta? <a href="#">Comece grátis por 14 dias →</a>
+  </p>
+
+</div>
+
+<!-- Toast Container -->
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+  // ─── Minimal toast for this page ─────────────
+  function showToast(msg, type = 'info') {
+    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast ' + type;
+    const icon = document.createElement('span');
+    icon.textContent = icons[type] || '';
+    const text = document.createElement('span');
+    text.textContent = msg;
+    const close = document.createElement('span');
+    close.className = 'toast-close';
+    close.textContent = '×';
+    close.onclick = () => toast.remove();
+    toast.append(icon, text, close);
+    container.appendChild(toast);
+    setTimeout(() => toast.remove(), 4000);
+  }
+
+  // ─── Google Auth (login page) ─────────────────
+  const GOOGLE_CLIENT_ID = '57647740881-o82reg3ddlgt34n8feple9bs2l36evn7.apps.googleusercontent.com';
+
+  function parseJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(
+        atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+      ));
+    } catch { return null; }
+  }
+
+  function saveSession(user) {
+    localStorage.setItem('vxpages_user', JSON.stringify(user));
+  }
+
+  function loadSession() {
+    try {
+      const raw = localStorage.getItem('vxpages_user');
+      if (!raw) return null;
+      const user = JSON.parse(raw);
+      if (user.exp && Date.now() / 1000 > user.exp) {
+        localStorage.removeItem('vxpages_user');
+        return null;
+      }
+      return user;
+    } catch { return null; }
+  }
+
+  function handleCredentialResponse(response) {
+    const payload = parseJwt(response.credential);
+    if (!payload) { showToast('Falha ao autenticar. Tente novamente.', 'error'); return; }
+    saveSession({
+      name: payload.name, email: payload.email, picture: payload.picture,
+      given: payload.given_name, exp: payload.exp, token: response.credential,
+    });
+    window.location.href = '/dash';
+  }
+
+  function doLogin() {
+    const googleBtn = document.querySelector('#g-signin-hidden div[role="button"]');
+    if (googleBtn) {
+      googleBtn.click();
+    } else {
+      showToast('Aguardando Google carregar, tente novamente.', 'info');
+    }
+  }
+
+  function initGoogleAuth() {
+    // Dev bypass: already logged in → go to dash
+    if (window.location.hostname === '127.0.0.1') {
+      if (!loadSession()) {
+        const exp = Math.floor(Date.now() / 1000) + (8 * 60 * 60);
+        saveSession({ name: 'Rafael Almeida', email: 'rafael@vxpages.com', given: 'Rafael', picture: null, exp });
+      }
+      window.location.href = '/dash';
+      return;
+    }
+
+    // Already logged in → go to dash
+    if (loadSession()) { window.location.href = '/dash'; return; }
+
+    if (typeof google === 'undefined') { setTimeout(initGoogleAuth, 300); return; }
+
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+
+    google.accounts.id.renderButton(
+      document.getElementById('g-signin-hidden'),
+      { theme: 'outline', size: 'large', type: 'standard', width: 300 }
+    );
+  }
+
+  document.addEventListener('DOMContentLoaded', initGoogleAuth);
+</script>
+</body>
+</html>

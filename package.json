@@ -1,0 +1,17 @@
+{
+  "name": "vx-pages",
+  "version": "1.0.0",
+  "description": "VX Pages — Criador de Landing Pages com IA",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.54.0",
+    "@google/generative-ai": "^0.24.1",
+    "dotenv": "^17.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^8.3.1"
+  }
+}
