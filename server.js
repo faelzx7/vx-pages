@@ -456,6 +456,6 @@ app.listen(PORT, () => {
   console.log(`   Haiku  (rápido): ${MODEL_FAST}`);
   console.log(`   Sonnet (página): ${MODEL_COMPLEX}`);
   console.log(`   Imagen (imagem): ${MODEL_IMAGE}`);
-  console.log(`   AbacatePay:      ${ABACATE ? 'configurado ✅' : 'não configurado ⚠️'}`);
+  console.log(`   AbacatePay:      ${ABACATE_KEY ? 'configurado ✅' : 'não configurado ⚠️'}`);
   console.log(`   Plano:           ${PLAN_NAME} — R$${(PLAN_PRICE/100).toFixed(2)}\n`);
 });
