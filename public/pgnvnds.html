@@ -1874,7 +1874,7 @@
           <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Publicação com um clique</div>
           <div class="pricing-feat"><span class="pricing-feat-icon">✓</span>Suporte por e-mail</div>
         </div>
-        <a href="/login" class="btn btn-outline">Começar agora</a>
+        <a href="#" onclick="openCheckout('mensal');return false;" class="btn btn-outline">Começar agora</a>
       </div>
 
       <!-- Anual -->
@@ -1896,7 +1896,7 @@
           <div class="pricing-feat"><span class="pricing-feat-icon">✓</span><strong>Suporte prioritário</strong></div>
           <div class="pricing-feat"><span class="pricing-feat-icon">✓</span><strong>Comunidade VX exclusiva</strong></div>
         </div>
-        <a href="/login" class="btn btn-primary">Quero o anual →</a>
+        <a href="#" onclick="openCheckout('anual');return false;" class="btn btn-primary">Quero o anual →</a>
       </div>
 
     </div>
@@ -2136,7 +2136,17 @@
   });
 
   // ─── Checkout modal ──────────────────────────
-  function openCheckout() {
+  const PLANS = {
+    mensal: { label: 'Plano Mensal', price: 'R$127/mês',  id: 'mensal' },
+    anual:  { label: 'Plano Anual',  price: 'R$297/ano',  id: 'anual'  },
+  };
+  let selectedPlan = 'anual';
+
+  function openCheckout(plan) {
+    selectedPlan = plan || 'anual';
+    const p = PLANS[selectedPlan];
+    document.getElementById('checkout-plan-name').textContent  = p.label;
+    document.getElementById('checkout-plan-price').textContent = p.price;
     document.getElementById('checkout-modal').classList.add('open');
     document.body.style.overflow = 'hidden';
   }
@@ -2163,7 +2173,7 @@
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, cellphone, taxId }),
+        body: JSON.stringify({ name, email, cellphone, taxId, plan: selectedPlan }),
       });
       const data = await res.json();
       if (data.url) {
@@ -2198,8 +2208,9 @@
 
     <div style="text-align:center;margin-bottom:24px">
       <div style="font-size:0.75rem;font-weight:700;letter-spacing:1px;color:#00FF85;margin-bottom:8px">COMEÇAR AGORA</div>
-      <h3 style="font-size:1.3rem;font-weight:800;margin:0 0 6px">VX Pages Pro</h3>
-      <p style="font-size:0.85rem;color:rgba(255,255,255,.6);margin:0">Preencha os dados para prosseguir com o pagamento via PIX</p>
+      <h3 style="font-size:1.3rem;font-weight:800;margin:0 0 4px" id="checkout-plan-name">Plano Anual</h3>
+      <div style="font-size:1rem;font-weight:700;color:#00FF85;margin-bottom:6px" id="checkout-plan-price">R$297/ano</div>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,.6);margin:0">Preencha os dados para prosseguir com o pagamento</p>
     </div>
 
     <form id="checkout-form" style="display:flex;flex-direction:column;gap:14px">

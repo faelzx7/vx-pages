@@ -48,10 +48,12 @@ async function abacatePost(path, body) {
   return res.json();
 }
 
-// Preço do plano em centavos (ex: 19700 = R$197). Configurável via env.
-const PLAN_PRICE    = parseInt(process.env.PLAN_PRICE || '9700', 10); // default R$97
-const PLAN_NAME     = process.env.PLAN_NAME || 'VX Pages Pro';
-const BASE_URL      = process.env.BASE_URL || `http://localhost:${PORT}`;
+// Preços em centavos. Configuráveis via env vars no Railway.
+const PLANS = {
+  mensal: { price: parseInt(process.env.PLAN_PRICE_MENSAL || '12700', 10), name: 'VX Pages — Plano Mensal' },
+  anual:  { price: parseInt(process.env.PLAN_PRICE_ANUAL  || '29700', 10), name: 'VX Pages — Plano Anual'  },
+};
+const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 // ─── Modelos ──────────────────────────────────
 const MODEL_FAST    = 'claude-haiku-4-5';     // ~R$0,02/chamada
@@ -393,16 +395,19 @@ app.post('/api/checkout', async (req, res) => {
     return res.status(503).json({ error: 'Pagamentos não configurados.' });
   }
 
-  const { name, email, cellphone, taxId } = req.body || {};
+  const { name, email, cellphone, taxId, plan } = req.body || {};
   if (!name || !email) {
     return res.status(400).json({ error: 'Nome e e-mail são obrigatórios.' });
   }
+
+  const selectedPlan = PLANS[plan] ? plan : 'anual';
+  const { price, name: planName } = PLANS[selectedPlan];
 
   try {
     const billing = await abacatePost('/billing/create', {
       frequency: 'ONE_TIME',
       methods:   ['PIX', 'CREDIT_CARD'],
-      products:  [{ externalId: 'vxpages-pro', name: PLAN_NAME, quantity: 1, price: PLAN_PRICE }],
+      products:  [{ externalId: `vxpages-${selectedPlan}`, name: planName, quantity: 1, price }],
       customer:  {
         name,
         email,
