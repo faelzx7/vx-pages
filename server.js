@@ -462,5 +462,6 @@ app.listen(PORT, () => {
   console.log(`   Sonnet (página): ${MODEL_COMPLEX}`);
   console.log(`   Imagen (imagem): ${MODEL_IMAGE}`);
   console.log(`   AbacatePay:      ${ABACATE_KEY ? 'configurado ✅' : 'não configurado ⚠️'}`);
-  console.log(`   Plano:           ${PLAN_NAME} — R$${(PLAN_PRICE/100).toFixed(2)}\n`);
+  console.log(`   Plano mensal:    R$${(PLANS.mensal.price/100).toFixed(2)}`);
+  console.log(`   Plano anual:     R$${(PLANS.anual.price/100).toFixed(2)}\n`);
 });
