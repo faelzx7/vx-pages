@@ -2114,7 +2114,9 @@
   // ─── Smooth anchor scroll ────────────────────
   document.querySelectorAll('a[href^="#"]').forEach(a => {
     a.addEventListener('click', e => {
-      const target = document.querySelector(a.getAttribute('href'));
+      const href = a.getAttribute('href');
+      if (!href || href === '#') return;
+      const target = document.querySelector(href);
       if (target) {
         e.preventDefault();
         // Close mobile menu if open
@@ -2151,38 +2153,42 @@
     document.getElementById('checkout-modal').addEventListener('click', function(e) {
       if (e.target === this) closeCheckout();
     });
-  });
+    document.getElementById('checkout-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const btn = this.querySelector('button[type=submit]');
+      const name      = this.name.value.trim();
+      const email     = this.email.value.trim();
+      const cellphone = this.cellphone.value.trim();
+      const taxId     = this.taxId.value.replace(/\D/g,'');
 
-  document.getElementById('checkout-form').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const btn = this.querySelector('button[type=submit]');
-    const name      = this.name.value.trim();
-    const email     = this.email.value.trim();
-    const cellphone = this.cellphone.value.trim();
-    const taxId     = this.taxId.value.replace(/\D/g,'');
+      btn.disabled = true;
+      btn.textContent = 'Aguarde...';
 
-    btn.disabled = true;
-    btn.textContent = 'Aguarde...';
-
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, cellphone, taxId, plan: selectedPlan }),
-      });
-      const data = await res.json();
-      if (data.url) {
-        window.location.href = data.url;
-      } else {
-        alert(data.error || 'Erro ao processar. Tente novamente.');
+      try {
+        const res = await fetch('/api/checkout', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, email, cellphone, taxId, plan: selectedPlan }),
+        });
+        const data = await res.json();
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert(data.error || 'Erro ao processar. Tente novamente.');
+          btn.disabled = false;
+          btn.textContent = 'Ir para o pagamento →';
+        }
+      } catch {
+        alert('Erro de conexão. Tente novamente.');
         btn.disabled = false;
         btn.textContent = 'Ir para o pagamento →';
       }
-    } catch {
-      alert('Erro de conexão. Tente novamente.');
-      btn.disabled = false;
-      btn.textContent = 'Ir para o pagamento →';
-    }
+    });
+
+    // ─── Stagger reveal for grids ────────────────
+    document.querySelectorAll('.problem-grid .problem-card, .features-grid .feature-card, .testimonials-grid .testimonial-card').forEach((el, i) => {
+      el.style.transitionDelay = `${(i % 3) * 0.1}s`;
+    });
   });
 
   function handleFinalCta(el) {
@@ -2190,11 +2196,6 @@
     openCheckout();
     try { if (typeof gtag !== 'undefined') gtag('event', 'cta_click', { location: 'final' }); } catch {}
   }
-
-  // ─── Stagger reveal for grids ────────────────
-  document.querySelectorAll('.problem-grid .problem-card, .features-grid .feature-card, .testimonials-grid .testimonial-card').forEach((el, i) => {
-    el.style.transitionDelay = `${(i % 3) * 0.1}s`;
-  });
 </script>
 <!-- ─── Checkout Modal ─────────────────────── -->
 <div id="checkout-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
