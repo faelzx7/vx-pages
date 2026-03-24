@@ -164,7 +164,7 @@ app.use(express.json({ limit: '50kb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── Rotas de página ──────────────────────────
-app.get('/',         (_req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/',         (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pgnvnds.html')));
 app.get('/login',    (_req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/dash',     (_req, res) => res.sendFile(path.join(__dirname, 'public', 'dash.html')));
 app.get('/pgnvnds',  (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pgnvnds.html')));
