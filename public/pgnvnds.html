@@ -28,7 +28,7 @@
       --radius-sm:  10px;
     }
 
-    html { scroll-behavior: smooth; overflow-x: hidden; }
+    html { scroll-behavior: smooth; overflow-x: hidden; scroll-padding-top: 90px; }
 
     body {
       background: var(--bg);
@@ -2130,8 +2130,7 @@
           nav.classList.remove('open');
           document.body.style.overflow = '';
         }
-        const top = target.getBoundingClientRect().top + window.scrollY - 80;
-        window.scrollTo({ top, behavior: 'smooth' });
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     });
   });
