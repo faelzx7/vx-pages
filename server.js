@@ -387,7 +387,7 @@ app.post('/api/checkout', async (req, res) => {
   try {
     const billing = await ABACATE.billing.create({
       frequency:     'ONE_TIME',
-      methods:       ['PIX'],
+      methods:       ['PIX', 'CREDIT_CARD'],
       products: [{
         externalId: 'vxpages-pro',
         name:       PLAN_NAME,
