@@ -347,16 +347,6 @@
   }
 
   function initGoogleAuth() {
-    // Dev bypass: already logged in → go to dash
-    if (window.location.hostname === '127.0.0.1') {
-      if (!loadSession()) {
-        const exp = Math.floor(Date.now() / 1000) + (8 * 60 * 60);
-        saveSession({ name: 'Rafael Almeida', email: 'rafael@vxpages.com', given: 'Rafael', picture: null, exp });
-      }
-      window.location.href = '/dash';
-      return;
-    }
-
     // Already logged in → go to dash
     if (loadSession()) { window.location.href = '/dash'; return; }
 

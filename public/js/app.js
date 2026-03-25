@@ -94,6 +94,7 @@ function navigate(section) {
   document.querySelectorAll(`[data-nav="${section}"]`).forEach(el => el.classList.add('active'));
   state.currentSection = section;
   updateTopbar(section);
+  if (section === 'pages' && typeof loadUserPages === 'function') loadUserPages();
 }
 
 function updateTopbar(section) {
@@ -129,25 +130,40 @@ function showToast(msg, type = 'info', duration = 3500) {
 }
 
 // ─── Dashboard ───────────────────────────────
-function renderDashboard() {
-  // Pages list
+async function renderDashboard() {
   const list = $('dash-pages-list');
   if (!list) return;
-  list.innerHTML = state.pages.slice(0, 4).map(p => `
-    <div class="page-item">
-      <div class="page-thumb ${p.thumb}">
-        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-          <rect x="3" y="3" width="18" height="18" rx="2"/>
-          <path d="M3 9h18M9 21V9"/>
-        </svg>
+  const email = window.currentUser?.email;
+  if (!email) { list.innerHTML = ''; return; }
+  try {
+    const res = await fetch(`/api/pages?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    const pages = (data.pages || []).slice(0, 4);
+    const statEl = document.getElementById('stat-pages-value');
+    if (statEl) statEl.textContent = (data.pages || []).length;
+    if (pages.length === 0) {
+      list.innerHTML = '<div style="color:var(--gray);font-size:0.85rem;text-align:center;padding:16px">Nenhuma página criada ainda.</div>';
+      return;
+    }
+    const thumbCls = ['thumb-1','thumb-2','thumb-3','thumb-4'];
+    list.innerHTML = pages.map((p, i) => `
+      <div class="page-item" style="cursor:pointer" onclick="viewPage('${p.id}')">
+        <div class="page-thumb ${thumbCls[i % 4]}">
+          <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <path d="M3 9h18M9 21V9"/>
+          </svg>
+        </div>
+        <div class="page-info">
+          <div class="page-name">${p.title}</div>
+          <div class="page-meta">${new Date(p.created_at).toLocaleDateString('pt-BR')}</div>
+        </div>
+        <div class="page-status live">Salva</div>
       </div>
-      <div class="page-info">
-        <div class="page-name">${p.name}</div>
-        <div class="page-meta">${p.niche} · ${p.date}</div>
-      </div>
-      <div class="page-status ${p.status}">${p.status === 'live' ? 'Publicada' : 'Rascunho'}</div>
-    </div>
-  `).join('');
+    `).join('');
+  } catch {
+    list.innerHTML = '';
+  }
 }
 
 // ─── Training ────────────────────────────────
@@ -284,18 +300,30 @@ function exportPage() {
   showToast('Página exportada e publicada! 🚀', 'success');
   setTimeout(() => {
     navigate('pages');
-    state.pages.unshift({
-      id: Date.now(), name: 'Nova Página (IA)', status: 'live',
-      niche: 'Geral', views: 0, conv: '—', date: 'Hoje', thumb: 'thumb-1'
-    });
-    renderPages();
+    loadUserPages();
   }, 1000);
 }
 
 // ─── Pages ───────────────────────────────────
-function renderPages() {
+async function loadUserPages() {
+  const email = window.currentUser?.email;
+  if (!email) return;
+  try {
+    const res = await fetch(`/api/pages?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    renderPages(data.pages || []);
+    // Atualiza stat card
+    const statEl = document.getElementById('stat-pages-value');
+    if (statEl) statEl.textContent = (data.pages || []).length;
+  } catch {}
+}
+
+function renderPages(pages = []) {
   const grid = $('pages-grid');
   if (!grid) return;
+
+  const thumbColors = ['pg-thumb-1','pg-thumb-2','pg-thumb-3','pg-thumb-4'];
+
   grid.innerHTML = `
     <div class="new-page-card" onclick="navigate('builder'); setBuilderStep(1);">
       <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -303,9 +331,13 @@ function renderPages() {
       </svg>
       <span>Criar Nova Página</span>
     </div>
-    ${state.pages.map(p => `
+    ${pages.length === 0 ? `
+      <div style="grid-column:1/-1;text-align:center;padding:40px;color:var(--gray);font-size:0.88rem">
+        Nenhuma página criada ainda. Clique em "Criar Nova Página" para começar.
+      </div>
+    ` : pages.map((p, i) => `
       <div class="pg-card">
-        <div class="pg-thumb ${p.thumb}">
+        <div class="pg-thumb ${thumbColors[i % 4]}">
           <div style="display:flex;flex-direction:column;gap:4px;padding:10px;width:100%">
             <div style="height:8px;background:rgba(255,255,255,0.2);border-radius:4px;width:60%"></div>
             <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:3px;width:80%"></div>
@@ -313,18 +345,15 @@ function renderPages() {
             <div style="height:20px;background:rgba(0,255,133,0.3);border-radius:4px;width:40%;margin-top:6px"></div>
           </div>
           <div class="pg-thumb-overlay">
-            <button onclick="editPage(${p.id})">Editar Página</button>
+            <button onclick="viewPage('${p.id}')">Ver Página</button>
+            <button onclick="deletePage('${p.id}')" style="background:rgba(255,77,109,.2);border-color:rgba(255,77,109,.4)">Deletar</button>
           </div>
         </div>
         <div class="pg-body">
-          <div class="pg-name">${p.name}</div>
-          <div class="pg-info">${p.niche} · ${p.date}</div>
+          <div class="pg-name">${p.title}</div>
+          <div class="pg-info">${new Date(p.created_at).toLocaleDateString('pt-BR')}</div>
           <div class="pg-footer">
-            <div class="pg-stats">
-              <div class="pg-stat"><strong>${p.views.toLocaleString()}</strong> views</div>
-              <div class="pg-stat"><strong>${p.conv}</strong> conv.</div>
-            </div>
-            <div class="page-status ${p.status}">${p.status === 'live' ? 'Publicada' : 'Rascunho'}</div>
+            <div class="page-status live">Salva</div>
           </div>
         </div>
       </div>
@@ -332,9 +361,30 @@ function renderPages() {
   `;
 }
 
-function editPage(id) {
-  showToast('Abrindo editor...', 'info');
-  setTimeout(() => navigate('builder'), 600);
+async function viewPage(id) {
+  const email = window.currentUser?.email;
+  if (!email) return;
+  try {
+    const res = await fetch(`/api/pages/${id}/html?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    if (data.html) {
+      const win = window.open('', '_blank');
+      win.document.open();
+      win.document.write(data.html);
+      win.document.close();
+    }
+  } catch { showToast('Erro ao abrir página.', 'error'); }
+}
+
+async function deletePage(id) {
+  if (!confirm('Deletar esta página?')) return;
+  const email = window.currentUser?.email;
+  if (!email) return;
+  try {
+    await fetch(`/api/pages/${id}?email=${encodeURIComponent(email)}`, { method: 'DELETE' });
+    showToast('Página deletada.', 'info');
+    loadUserPages();
+  } catch { showToast('Erro ao deletar.', 'error'); }
 }
 
 // ─── Settings ────────────────────────────────

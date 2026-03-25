@@ -290,6 +290,20 @@ async function aiGeneratePage() {
     updateSummary({ cta: '' });
     showToast('Página gerada pela VX AI! 🎨', 'success');
     setBuilderStep(5);
+
+    // Salva no Supabase
+    const email = _userEmail();
+    const title = document.getElementById('field-product')?.value?.trim() || 'Página sem título';
+    if (email) {
+      fetch('/api/pages/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, title, html }),
+      }).then(r => r.json()).then(data => {
+        if (data.page?.id) window._savedPageId = data.page.id;
+        if (typeof loadUserPages === 'function') loadUserPages();
+      }).catch(() => {});
+    }
   } catch (e) {
     if (placeholder) {
       placeholder.innerHTML = `

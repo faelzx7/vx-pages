@@ -264,6 +264,68 @@ app.post('/api/credits/use', async (req, res) => {
   }
 });
 
+// ─── Supabase: Pages ──────────────────────────
+app.post('/api/pages/save', async (req, res) => {
+  const { email, title, html } = req.body || {};
+  if (!email || !html) return res.status(400).json({ error: 'Email e HTML obrigatórios.' });
+  try {
+    const { data, error } = await supabase.from('pages')
+      .insert({ email, title: title || 'Página sem título', html })
+      .select('id, title, created_at')
+      .single();
+    if (error) throw error;
+    res.json({ ok: true, page: data });
+  } catch (err) {
+    console.error('[/api/pages/save]', err.message);
+    res.status(500).json({ error: 'Erro ao salvar página.' });
+  }
+});
+
+app.get('/api/pages', async (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
+  try {
+    const { data, error } = await supabase.from('pages')
+      .select('id, title, created_at')
+      .eq('email', email)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    res.json({ pages: data || [] });
+  } catch (err) {
+    console.error('[/api/pages GET]', err.message);
+    res.status(500).json({ error: 'Erro ao buscar páginas.' });
+  }
+});
+
+app.get('/api/pages/:id/html', async (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
+  try {
+    const { data, error } = await supabase.from('pages')
+      .select('html, title')
+      .eq('id', req.params.id)
+      .eq('email', email)
+      .single();
+    if (error || !data) return res.status(404).json({ error: 'Página não encontrada.' });
+    res.json({ html: data.html, title: data.title });
+  } catch (err) {
+    console.error('[/api/pages/:id/html]', err.message);
+    res.status(500).json({ error: 'Erro ao buscar página.' });
+  }
+});
+
+app.delete('/api/pages/:id', async (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
+  try {
+    await supabase.from('pages').delete().eq('id', req.params.id).eq('email', email);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[/api/pages DELETE]', err.message);
+    res.status(500).json({ error: 'Erro ao deletar página.' });
+  }
+});
+
 // ─── Rotas de página ──────────────────────────
 app.get('/',         (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pgnvnds.html')));
 app.get('/login',    (_req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
@@ -498,7 +560,7 @@ app.post('/api/checkout', async (req, res) => {
 });
 
 // ─── Webhook AbacatePay ───────────────────────
-app.post('/api/webhook/abacatepay', express.raw({ type: 'application/json' }), (req, res) => {
+app.post('/api/webhook/abacatepay', express.raw({ type: 'application/json' }), async (req, res) => {
   const secret    = process.env.ABACATEPAY_WEBHOOK_SECRET;
   const signature = req.headers['x-webhook-signature'];
 
@@ -517,8 +579,20 @@ app.post('/api/webhook/abacatepay', express.raw({ type: 'application/json' }), (
     console.log(`[webhook] event=${event.event} id=${event.data?.id}`);
 
     if (event.event === 'billing.paid' || event.event === 'checkout.completed') {
-      // TODO: marcar usuário como pago no banco quando DB for integrado
-      console.log(`[webhook] Pagamento confirmado: ${event.data?.customer?.email}`);
+      const email = event.data?.customer?.email;
+      console.log(`[webhook] Pagamento confirmado: ${email}`);
+      if (email) {
+        // Marca usuário como pago
+        await supabase.from('users').upsert({ email, plan: 'paid' }, { onConflict: 'email' });
+        // Garante créditos existem e reseta se necessário
+        const resetDate = new Date();
+        resetDate.setMonth(resetDate.getMonth() + 1, 1);
+        await supabase.from('credits').upsert(
+          { email, used: 0, limit: 15, reset_date: resetDate.toISOString().slice(0, 10) },
+          { onConflict: 'email' }
+        );
+        console.log(`[webhook] Usuário ${email} ativado com plano paid.`);
+      }
     }
 
     res.status(200).json({ received: true });
