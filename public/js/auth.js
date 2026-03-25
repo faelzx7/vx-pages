@@ -96,7 +96,8 @@ function initDashUser() {
       const img = document.createElement('img');
       img.src   = currentUser.picture;
       img.alt   = currentUser.given || '';
-      img.style.cssText = 'width:100%;height:100%;border-radius:50%;object-fit:cover';
+      img.style.cssText = 'width:100%;height:100%;object-fit:cover;display:block';
+      img.onload = () => { avatarEl.style.background = 'none'; };
       avatarEl.appendChild(img);
     } else {
       avatarEl.textContent = currentUser.given?.[0]?.toUpperCase() || 'U';
