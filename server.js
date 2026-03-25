@@ -413,7 +413,12 @@ app.post('/api/checkout', async (req, res) => {
       completionUrl: `${BASE_URL}/dash?payment=success`,
     });
 
-    res.json({ url: billing.data?.url || billing.url });
+    console.log('[/api/checkout] AbacatePay response:', JSON.stringify(billing));
+
+    const url = billing.data?.url || billing.url;
+    if (!url) throw new Error(`AbacatePay sem URL: ${JSON.stringify(billing)}`);
+
+    res.json({ url });
   } catch (err) {
     console.error('[/api/checkout]', err.message);
     res.status(500).json({ error: 'Erro ao criar cobrança.' });
