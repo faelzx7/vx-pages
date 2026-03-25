@@ -411,13 +411,22 @@ app.post('/api/checkout', async (req, res) => {
       ...(taxId     && { taxId }),
     });
 
-    // 2. Cria checkout com produto pré-cadastrado
-    const checkout = await abacatePost('/checkouts/create', {
-      items: [{ id: process.env.ABACATEPAY_PRODUCT_ID, quantity: 1 }],
-      ...(customer?.data?.id && { customerId: customer.data.id }),
-      returnUrl:     `${BASE_URL}/dash`,
-      completionUrl: `${BASE_URL}/dash?payment=success`,
+    // 2. Cria checkout com produto pré-cadastrado (v2)
+    const checkoutRes = await fetch('https://api.abacatepay.com/v2/checkouts/create', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ABACATE_KEY}` },
+      body: JSON.stringify({
+        items: [{ id: process.env.ABACATEPAY_PRODUCT_ID, quantity: 1 }],
+        ...(customer?.data?.id && { customerId: customer.data.id }),
+        returnUrl:     `${BASE_URL}/dash`,
+        completionUrl: `${BASE_URL}/dash?payment=success`,
+      }),
     });
+    if (!checkoutRes.ok) {
+      const text = await checkoutRes.text();
+      throw new Error(`AbacatePay checkout ${checkoutRes.status}: ${text}`);
+    }
+    const checkout = await checkoutRes.json();
 
     res.json({ url: checkout.data?.url || checkout.url });
   } catch (err) {
