@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>VX Pages — Entrar</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d2626'/><text y='.9em' font-size='70' x='10'>Vx</text></svg>">
-  <!-- Google Identity Services -->
   <script src="https://accounts.google.com/gsi/client" async defer></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -14,105 +13,218 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --bg:        #052F33;
-      --bg-card:   #084E59;
-      --bg-card2:  #073d47;
+      --bg:        #040f10;
+      --bg-card:   rgba(8,78,89,0.5);
       --border:    rgba(255,255,255,.08);
+      --border-g:  rgba(0,255,133,.2);
       --green:     #00FF85;
-      --green-glow:rgba(0,255,133,.15);
+      --green-dim: #00cc6a;
       --text:      #FFFFFF;
-      --gray:      #7ab5be;
-      --radius:    14px;
+      --gray:      #6b9ea8;
+      --gray2:     #4a7a83;
+      --radius:    20px;
     }
 
     body {
       background: var(--bg);
       color: var(--text);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      font-optical-sizing: auto;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       min-height: 100dvh;
       display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .login-wrap {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 32px;
-      width: 100%;
-      max-width: 400px;
-    }
-
-    /* Logo */
-    .logo-block {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-    .logo-img {
-      width: 72px;
-      height: 72px;
-      border-radius: 20px;
       overflow: hidden;
-      box-shadow: 0 0 40px rgba(0,255,133,.25);
-    }
-    .logo-img img { width: 100%; height: 100%; object-fit: cover; }
-    .logo-title {
-      font-size: 2rem;
-      font-weight: 800;
-      letter-spacing: -0.5px;
-      color: var(--text);
-    }
-    .logo-title span { color: var(--green); }
-    .logo-sub {
-      font-size: 0.88rem;
-      color: var(--gray);
-      text-align: center;
-      line-height: 1.6;
-      max-width: 300px;
     }
 
-    /* Card */
-    .login-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 32px 28px;
+    /* ─── Background ──────────────────── */
+    .bg-wrap {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+    }
+    .bg-wrap::before {
+      content: '';
+      position: absolute;
+      width: 700px; height: 700px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,255,133,.12) 0%, transparent 70%);
+      top: -200px; left: -200px;
+      animation: float1 12s ease-in-out infinite;
+    }
+    .bg-wrap::after {
+      content: '';
+      position: absolute;
+      width: 500px; height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0,150,100,.08) 0%, transparent 70%);
+      bottom: -100px; right: -100px;
+      animation: float2 15s ease-in-out infinite;
+    }
+    @keyframes float1 {
+      0%,100% { transform: translate(0,0); }
+      50%      { transform: translate(40px, 30px); }
+    }
+    @keyframes float2 {
+      0%,100% { transform: translate(0,0); }
+      50%      { transform: translate(-30px,-20px); }
+    }
+    .bg-grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(0,255,133,.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,255,133,.03) 1px, transparent 1px);
+      background-size: 48px 48px;
+    }
+
+    /* ─── Layout ─────────────────────── */
+    .page {
+      position: relative;
+      z-index: 1;
+      display: flex;
       width: 100%;
+      min-height: 100dvh;
+    }
+
+    /* ─── Left Panel ─────────────────── */
+    .left {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px 64px;
+      border-right: 1px solid var(--border);
+      position: relative;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 56px;
+    }
+    .brand-icon {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 0 24px rgba(0,255,133,.3);
+      flex-shrink: 0;
+    }
+    .brand-icon img { width: 100%; height: 100%; object-fit: cover; }
+    .brand-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+    .brand-name span { color: var(--green); }
+
+    .left-headline {
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+    .left-headline .hl { color: var(--green); }
+
+    .left-sub {
+      font-size: 1rem;
+      color: var(--gray);
+      line-height: 1.7;
+      max-width: 400px;
+      margin-bottom: 48px;
+    }
+
+    .features {
       display: flex;
       flex-direction: column;
       gap: 20px;
+      margin-bottom: 52px;
     }
-    .login-card h2 {
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--text);
-      text-align: center;
+    .feature {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
     }
-    .login-card .sub {
-      font-size: 0.82rem;
+    .feature-icon {
+      width: 36px; height: 36px;
+      border-radius: 10px;
+      background: rgba(0,255,133,.1);
+      border: 1px solid rgba(0,255,133,.2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .feature-text .f-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .feature-text .f-desc {
+      font-size: 0.8rem;
       color: var(--gray);
-      text-align: center;
-      margin-top: -12px;
       line-height: 1.5;
     }
 
-    /* Google button */
+    .stats-row {
+      display: flex;
+      gap: 32px;
+      padding-top: 32px;
+      border-top: 1px solid var(--border);
+    }
+    .stat { display: flex; flex-direction: column; gap: 2px; }
+    .stat-num {
+      font-size: 1.4rem;
+      font-weight: 800;
+      color: var(--green);
+      letter-spacing: -0.5px;
+    }
+    .stat-label { font-size: 0.75rem; color: var(--gray); }
+
+    /* ─── Right Panel ────────────────── */
+    .right {
+      width: 480px;
+      flex-shrink: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 48px 40px;
+    }
+
+    .login-box {
+      width: 100%;
+      max-width: 360px;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-header h1 {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      margin-bottom: 8px;
+    }
+    .login-header p {
+      font-size: 0.85rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    /* Google button overlay */
     .btn-google-wrap {
       position: relative;
       width: 100%;
+      margin-bottom: 24px;
     }
     .btn-google-wrap #g-signin-hidden {
       position: absolute;
       inset: 0;
       overflow: hidden;
-      border-radius: 10px;
+      border-radius: 14px;
       opacity: 0.01;
       z-index: 2;
       cursor: pointer;
@@ -127,27 +239,51 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 13px 20px;
+      gap: 12px;
+      padding: 15px 24px;
       background: #fff;
       color: #1f1f1f;
       border: none;
-      border-radius: 10px;
-      font-size: 0.9rem;
+      border-radius: 14px;
+      font-size: 0.95rem;
       font-weight: 600;
+      font-family: 'Inter', sans-serif;
       cursor: pointer;
-      transition: opacity .15s, transform .15s;
+      transition: all .2s;
+      box-shadow: 0 4px 24px rgba(0,0,0,.3);
     }
-    .btn-google:hover { opacity: .93; transform: translateY(-1px); }
-    .btn-google:active { transform: translateY(0); opacity: .85; }
-    .btn-google:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-google:hover { transform: translateY(-2px); box-shadow: 0 8px 32px rgba(0,0,0,.4); }
+    .btn-google:active { transform: translateY(0); }
 
+    /* Card container */
+    .login-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .login-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(0,255,133,.4), transparent);
+    }
+
+    /* Divider */
     .divider {
       display: flex;
       align-items: center;
       gap: 12px;
-      color: var(--gray);
-      font-size: 0.75rem;
+      color: var(--gray2);
+      font-size: 0.72rem;
+      letter-spacing: 0.5px;
+      margin-bottom: 24px;
     }
     .divider::before, .divider::after {
       content: '';
@@ -156,22 +292,35 @@
       background: var(--border);
     }
 
+    /* Benefits inside card */
+    .login-benefits {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .login-benefit {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.82rem;
+      color: rgba(255,255,255,.75);
+    }
+    .login-benefit svg { color: var(--green); flex-shrink: 0; }
+
+    /* Terms */
     .terms {
       font-size: 0.72rem;
-      color: var(--gray);
+      color: var(--gray2);
       text-align: center;
       line-height: 1.7;
+      margin-bottom: 20px;
     }
-    .terms a {
-      color: var(--green);
-      text-decoration: none;
-      cursor: pointer;
-    }
+    .terms a { color: var(--green); text-decoration: none; }
     .terms a:hover { text-decoration: underline; }
 
     /* Bottom link */
     .signup-link {
-      font-size: 0.78rem;
+      font-size: 0.8rem;
       color: var(--gray);
       text-align: center;
     }
@@ -179,99 +328,176 @@
       color: var(--green);
       font-weight: 600;
       text-decoration: none;
-      cursor: pointer;
     }
     .signup-link a:hover { text-decoration: underline; }
 
+    /* Entrance animation */
+    .animate-in {
+      opacity: 0;
+      transform: translateY(16px);
+      animation: enter .5s ease forwards;
+    }
+    .animate-in:nth-child(1) { animation-delay: .05s; }
+    .animate-in:nth-child(2) { animation-delay: .15s; }
+    .animate-in:nth-child(3) { animation-delay: .25s; }
+    .animate-in:nth-child(4) { animation-delay: .3s; }
+    @keyframes enter {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
     /* Toast */
     .toast-container {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      z-index: 9999;
+      position: fixed; bottom: 24px; right: 24px;
+      display: flex; flex-direction: column; gap: 10px; z-index: 9999;
     }
     .toast {
-      display: flex;
-      align-items: center;
-      gap: 10px;
+      display: flex; align-items: center; gap: 10px;
       padding: 12px 16px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      font-size: 0.83rem;
-      color: var(--text);
+      background: #0d3a40; border: 1px solid var(--border); border-radius: 12px;
+      font-size: 0.83rem; color: var(--text);
       animation: toast-in .2s ease;
-      box-shadow: 0 8px 24px rgba(0,0,0,.4);
-      min-width: 220px;
-      max-width: 320px;
+      box-shadow: 0 8px 24px rgba(0,0,0,.5);
+      min-width: 220px; max-width: 320px;
     }
     @keyframes toast-in { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-    .toast.success { border-color: rgba(0,255,133,.3); }
-    .toast.error   { border-color: rgba(255,77,109,.3); }
-    .toast.info    { border-color: rgba(100,180,255,.3); }
-    .toast-close { margin-left: auto; cursor: pointer; color: var(--gray); font-size: 1rem; line-height: 1; }
+    .toast.error { border-color: rgba(255,77,109,.4); }
+    .toast-close { margin-left: auto; cursor: pointer; color: var(--gray); font-size: 1rem; }
     .toast-close:hover { color: var(--text); }
 
-    /* Loading spinner for button */
-    .g-spinner {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid rgba(31,31,31,.3);
-      border-top-color: #1f1f1f;
-      border-radius: 50%;
-      animation: spin .6s linear infinite;
+    /* ─── Mobile ─────────────────────── */
+    @media (max-width: 860px) {
+      body { overflow: auto; }
+      .left { display: none; }
+      .right {
+        width: 100%;
+        padding: 40px 24px;
+        min-height: 100dvh;
+      }
+      .login-box { max-width: 400px; }
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
 
-<div class="login-wrap">
+<!-- Background -->
+<div class="bg-wrap">
+  <div class="bg-grid"></div>
+</div>
 
-  <!-- Logo -->
-  <div class="logo-block">
-    <div class="logo-img">
-      <img src="assets/logo.png" alt="VX Pages">
-    </div>
-    <div>
-      <div class="logo-title">VX <span>Pages</span></div>
-    </div>
-    <p class="logo-sub">Crie landing pages de alta conversão com Inteligência Artificial em minutos.</p>
-  </div>
+<div class="page">
 
-  <!-- Card -->
-  <div class="login-card">
-    <h2>Acesse sua conta</h2>
-    <p class="sub">Entre com sua conta Google para continuar</p>
-
-    <div class="btn-google-wrap">
-      <div id="g-signin-hidden"></div>
-      <button class="btn-google" id="login-btn">
-      <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
-        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
-        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
-        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
-        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
-      </svg>
-      Continuar com Google
-      </button>
+  <!-- ─── Left ─────────────────────────── -->
+  <div class="left">
+    <div class="brand animate-in">
+      <div class="brand-icon">
+        <img src="assets/logo.png" alt="VX Pages">
+      </div>
+      <div class="brand-name">VX <span>Pages</span></div>
     </div>
 
-    <div class="divider">ou</div>
-
-    <p class="terms">
-      Ao entrar, você concorda com os<br>
-      <a href="#">Termos de Uso</a> e <a href="#">Política de Privacidade</a>
+    <h2 class="left-headline animate-in">
+      Crie páginas que<br><span class="hl">vendem de verdade</span><br>com IA.
+    </h2>
+    <p class="left-sub animate-in">
+      A plataforma brasileira para criadores, especialistas e agências que querem landing pages de alta conversão — sem precisar saber programar.
     </p>
+
+    <div class="features animate-in">
+      <div class="feature">
+        <div class="feature-icon">⚡</div>
+        <div class="feature-text">
+          <div class="f-title">Geração em minutos</div>
+          <div class="f-desc">A VX AI cria sua landing page completa com copy, design e estrutura de conversão.</div>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">🎯</div>
+        <div class="feature-text">
+          <div class="f-title">Copy de alta conversão</div>
+          <div class="f-desc">Headlines, gatilhos mentais, depoimentos e CTAs otimizados para o seu nicho.</div>
+        </div>
+      </div>
+      <div class="feature">
+        <div class="feature-icon">📱</div>
+        <div class="feature-text">
+          <div class="f-title">100% responsivo</div>
+          <div class="f-desc">Suas páginas ficam perfeitas no celular, tablet e desktop automaticamente.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="stats-row animate-in">
+      <div class="stat">
+        <div class="stat-num">15+</div>
+        <div class="stat-label">Gerações por mês</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">3 min</div>
+        <div class="stat-label">Para ter sua página</div>
+      </div>
+      <div class="stat">
+        <div class="stat-num">100%</div>
+        <div class="stat-label">Mobile-first</div>
+      </div>
+    </div>
   </div>
 
-  <p class="signup-link">
-    Não tem conta? <a href="/">Conheça os planos →</a>
-  </p>
+  <!-- ─── Right ────────────────────────── -->
+  <div class="right">
+    <div class="login-box">
+
+      <div class="login-header animate-in">
+        <h1>Bem-vindo de volta</h1>
+        <p>Entre com sua conta Google para acessar o dashboard</p>
+      </div>
+
+      <div class="login-card animate-in">
+        <div class="btn-google-wrap">
+          <div id="g-signin-hidden"></div>
+          <button class="btn-google" id="login-btn">
+            <svg width="20" height="20" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+              <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+              <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+              <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+              <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+            </svg>
+            Continuar com Google
+          </button>
+        </div>
+
+        <div class="divider">o que você vai ter acesso</div>
+
+        <div class="login-benefits">
+          <div class="login-benefit">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            15 gerações de landing page por mês
+          </div>
+          <div class="login-benefit">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Sugestões de headline, copy e FAQ ilimitadas
+          </div>
+          <div class="login-benefit">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Páginas salvas e organizadas no dashboard
+          </div>
+          <div class="login-benefit">
+            <svg width="15" height="15" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Centro de treinamento em vendas e marketing
+          </div>
+        </div>
+      </div>
+
+      <p class="terms animate-in">
+        Ao entrar, você concorda com os
+        <a href="#">Termos de Uso</a> e <a href="#">Política de Privacidade</a>
+      </p>
+
+      <p class="signup-link animate-in">
+        Não tem conta? <a href="/">Conheça os planos →</a>
+      </p>
+
+    </div>
+  </div>
 
 </div>
 
@@ -279,26 +505,21 @@
 <div class="toast-container" id="toast-container"></div>
 
 <script>
-  // ─── Minimal toast for this page ─────────────
   function showToast(msg, type = 'info') {
-    const icons = { success: '✅', error: '❌', info: 'ℹ️' };
     const container = document.getElementById('toast-container');
     const toast = document.createElement('div');
     toast.className = 'toast ' + type;
-    const icon = document.createElement('span');
-    icon.textContent = icons[type] || '';
     const text = document.createElement('span');
     text.textContent = msg;
     const close = document.createElement('span');
     close.className = 'toast-close';
     close.textContent = '×';
     close.onclick = () => toast.remove();
-    toast.append(icon, text, close);
+    toast.append(text, close);
     container.appendChild(toast);
     setTimeout(() => toast.remove(), 4000);
   }
 
-  // ─── Google Auth (login page) ─────────────────
   const GOOGLE_CLIENT_ID = '57647740881-o82reg3ddlgt34n8feple9bs2l36evn7.apps.googleusercontent.com';
 
   function parseJwt(token) {
@@ -308,10 +529,6 @@
         atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
       ));
     } catch { return null; }
-  }
-
-  function saveSession(user) {
-    localStorage.setItem('vxpages_user', JSON.stringify(user));
   }
 
   function loadSession() {
@@ -327,29 +544,26 @@
     } catch { return null; }
   }
 
-  function handleCredentialResponse(response) {
+  async function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
     if (!payload) { showToast('Falha ao autenticar. Tente novamente.', 'error'); return; }
-    saveSession({
+    const user = {
       name: payload.name, email: payload.email, picture: payload.picture,
       given: payload.given_name, exp: payload.exp, token: response.credential,
-    });
+    };
+    localStorage.setItem('vxpages_user', JSON.stringify(user));
+    try {
+      await fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, name: user.name, picture: user.picture }),
+      });
+    } catch {}
     window.location.href = '/dash';
   }
 
-  function doLogin() {
-    const googleBtn = document.querySelector('#g-signin-hidden div[role="button"]');
-    if (googleBtn) {
-      googleBtn.click();
-    } else {
-      showToast('Aguardando Google carregar, tente novamente.', 'info');
-    }
-  }
-
   function initGoogleAuth() {
-    // Already logged in → go to dash
     if (loadSession()) { window.location.href = '/dash'; return; }
-
     if (typeof google === 'undefined') { setTimeout(initGoogleAuth, 300); return; }
 
     google.accounts.id.initialize({
