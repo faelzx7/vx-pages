@@ -254,13 +254,10 @@
   }
 
   function doLogin() {
-    const googleBtn = document.querySelector('#g-signin-hidden div[role="button"]');
-    if (googleBtn) {
-      googleBtn.click();
-    } else {
-      // fallback: redireciona pro login
-      window.location.href = '/login';
-    }
+    if (typeof google === 'undefined') { setTimeout(doLogin, 200); return; }
+    const btn = document.querySelector('#g-signin-hidden div[role="button"]');
+    if (btn) { btn.click(); return; }
+    google.accounts.id.prompt();
   }
 
   function init() {
