@@ -254,13 +254,22 @@
     } catch { return null; }
   }
 
-  function handleCredentialResponse(response) {
+  async function handleCredentialResponse(response) {
     const payload = parseJwt(response.credential);
     if (!payload) return;
-    localStorage.setItem('vxpages_user', JSON.stringify({
+    const user = {
       name: payload.name, email: payload.email, picture: payload.picture,
       given: payload.given_name, exp: payload.exp, token: response.credential,
-    }));
+    };
+    localStorage.setItem('vxpages_user', JSON.stringify(user));
+    // Sincroniza com Supabase (garante que créditos existem)
+    try {
+      await fetch('/api/user/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: user.email, name: user.name, picture: user.picture }),
+      });
+    } catch {}
     window.location.href = '/dash';
   }
 

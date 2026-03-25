@@ -420,18 +420,8 @@ function initAiSettings() {
 }
 
 function saveAiApiKey() {
-  const input = document.getElementById('claude-api-key-input');
-  if (!input) return;
-  const val = input.value.trim();
-  if (!val || val.includes('•')) {
-    showToast('Insira uma API Key válida.', 'error');
-    return;
-  }
-  saveApiKey(val);
-  input.dataset.real = val;
-  input.value = val.slice(0, 8) + '•'.repeat(Math.max(0, val.length - 8));
-  updateApiKeyStatus(true);
-  showToast('API Key salva com sucesso! ✅', 'success');
+  // API key é gerenciada no servidor (Railway env vars) — não há ação no frontend.
+  showToast('A API Key é configurada no servidor pelo administrador.', 'info');
 }
 
 function clearAiApiKey() {
