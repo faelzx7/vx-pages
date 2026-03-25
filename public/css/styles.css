@@ -324,7 +324,7 @@ body {
   background: linear-gradient(135deg, var(--green), var(--green-dim));
   display: flex; align-items: center; justify-content: center;
   font-weight: 700; font-size: 0.8rem; color: var(--bg-dark);
-  flex-shrink: 0;
+  flex-shrink: 0; overflow: hidden;
 }
 .user-info { line-height: 1.3; overflow: hidden; }
 .user-info strong { font-size: 0.83rem; font-weight: 600; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
