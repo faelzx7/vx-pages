@@ -406,7 +406,7 @@ app.post('/api/checkout', async (req, res) => {
     // Cria cobrança v1 com produto inline
     const billing = await abacatePost('/billing/create', {
       frequency: 'ONE_TIME',
-      methods:   ['PIX', 'CREDIT_CARD'],
+      methods:   ['PIX', 'CARD'],
       products:  [{ externalId: 'vxpages-anual', name: 'VX Pages — Plano Anual Completo', quantity: 1, price: parseInt(process.env.PLAN_PRICE_ANUAL || '29700', 10) }],
       customer:  { name, email, cellphone, ...(taxId && { taxId }) },
       returnUrl:     `${BASE_URL}/dash`,
