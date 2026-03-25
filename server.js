@@ -394,30 +394,29 @@ app.post('/api/checkout', async (req, res) => {
     return res.status(503).json({ error: 'Pagamentos não configurados.' });
   }
 
-  const { name, email, cellphone, taxId, plan } = req.body || {};
+  const { name, email, cellphone, taxId } = req.body || {};
   if (!name || !email) {
     return res.status(400).json({ error: 'Nome e e-mail são obrigatórios.' });
   }
 
-  const selectedPlan = PLANS[plan] ? plan : 'anual';
-  const { price, name: planName } = PLANS[selectedPlan];
-
   try {
-    const billing = await abacatePost('/billing/create', {
-      frequency: 'ONE_TIME',
-      methods:   ['PIX', 'CREDIT_CARD'],
-      products:  [{ externalId: `vxpages-${selectedPlan}`, name: planName, quantity: 1, price }],
-      customer:  {
-        name,
-        email,
-        ...(cellphone && { cellphone }),
-        ...(taxId     && { taxId }),
-      },
+    // 1. Cria/atualiza cliente
+    const customer = await abacatePost('/customer/create', {
+      name,
+      email,
+      ...(cellphone && { cellphone }),
+      ...(taxId     && { taxId }),
+    });
+
+    // 2. Cria checkout com produto pré-cadastrado
+    const checkout = await abacatePost('/checkouts/create', {
+      items: [{ id: process.env.ABACATEPAY_PRODUCT_ID, quantity: 1 }],
+      ...(customer?.data?.id && { customerId: customer.data.id }),
       returnUrl:     `${BASE_URL}/dash`,
       completionUrl: `${BASE_URL}/dash?payment=success`,
     });
 
-    res.json({ url: billing.url });
+    res.json({ url: checkout.data?.url || checkout.url });
   } catch (err) {
     console.error('[/api/checkout]', err.message);
     res.status(500).json({ error: 'Erro ao criar cobrança.' });
