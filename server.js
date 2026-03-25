@@ -198,6 +198,7 @@ app.get('/',         (_req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/login',    (_req, res) => res.sendFile(path.join(__dirname, 'public', 'login.html')));
 app.get('/dash',     (_req, res) => res.sendFile(path.join(__dirname, 'public', 'dash.html')));
 app.get('/pgnvnds',  (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pgnvnds.html')));
+app.get('/obrigado', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'obrigado.html')));
 
 // ─── Sanitização de campos ────────────────────
 // Remove tags HTML e limita o tamanho por campo
