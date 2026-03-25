@@ -161,9 +161,12 @@ app.use((req, res, next) => {
 app.use((req, res, next) => {
   const origin = req.headers.origin;
   if (origin) {
+    const host = req.headers.host;
     const allowed = [
       `http://localhost:${PORT}`,
       `http://127.0.0.1:${PORT}`,
+      `https://${host}`,
+      `http://${host}`,
       ...(process.env.ALLOWED_ORIGIN ? [process.env.ALLOWED_ORIGIN] : []),
     ];
     if (!allowed.includes(origin)) {
