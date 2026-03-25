@@ -79,8 +79,8 @@ function escapeHtml(str) {
 
 // ─── Core fetch wrapper ───────────────────────
 async function callClaude(action, data) {
-  // Check credits before calling
-  if (!hasCredits()) {
+  // Só generate_page consome crédito
+  if (action === 'generate_page' && !hasCredits()) {
     const info = getCreditsInfo();
     const date = info.reset_date ? new Date(info.reset_date).toLocaleDateString('pt-BR') : 'próximo mês';
     showCreditsExhaustedModal(date);
@@ -96,8 +96,7 @@ async function callClaude(action, data) {
   const json = await res.json();
   if (!res.ok) throw new Error(json.error || 'Erro desconhecido');
 
-  // Only count successful calls
-  await useCredit();
+  if (action === 'generate_page') await useCredit();
   return json.result;
 }
 
