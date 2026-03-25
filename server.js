@@ -410,7 +410,7 @@ app.post('/api/checkout', async (req, res) => {
       products:  [{ externalId: 'vxpages-anual', name: 'VX Pages — Plano Anual Completo', quantity: 1, price: parseInt(process.env.PLAN_PRICE_ANUAL || '29700', 10) }],
       customer:  { name, email, cellphone, ...(taxId && { taxId }) },
       returnUrl:     `${BASE_URL}/dash`,
-      completionUrl: `${BASE_URL}/dash?payment=success`,
+      completionUrl: `${BASE_URL}/obrigado`,
     });
 
     console.log('[/api/checkout] AbacatePay response:', JSON.stringify(billing));

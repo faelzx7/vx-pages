@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bem-vindo ao VX Pages!</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230d2626'/><text y='.9em' font-size='70' x='10'>Vx</text></svg>">
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:      #052F33;
+      --card:    #084E59;
+      --border:  rgba(255,255,255,.08);
+      --green:   #00FF85;
+      --gray:    #7ab5be;
+      --text:    #FFFFFF;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      min-height: 100dvh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+    }
+
+    /* Confetti icon */
+    .icon-wrap {
+      width: 88px;
+      height: 88px;
+      background: rgba(0,255,133,.12);
+      border: 1.5px solid rgba(0,255,133,.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.6rem;
+      animation: pop .5s cubic-bezier(.34,1.56,.64,1) both;
+    }
+    @keyframes pop {
+      from { transform: scale(.4); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+
+    .headline {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      animation: fade-up .5s .1s ease both;
+    }
+    .headline h1 {
+      font-size: 2rem;
+      font-weight: 800;
+      letter-spacing: -.5px;
+      line-height: 1.15;
+    }
+    .headline h1 span { color: var(--green); }
+    .headline p {
+      font-size: 0.95rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    @keyframes fade-up {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Card */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 32px 28px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      animation: fade-up .5s .2s ease both;
+    }
+    .card-title {
+      font-size: 1rem;
+      font-weight: 700;
+    }
+    .card-sub {
+      font-size: 0.84rem;
+      color: var(--gray);
+      line-height: 1.6;
+      margin-top: -10px;
+    }
+
+    /* Steps */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      text-align: left;
+    }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.85rem;
+      color: rgba(255,255,255,.8);
+    }
+    .step-num {
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: rgba(0,255,133,.15);
+      border: 1px solid rgba(0,255,133,.3);
+      color: var(--green);
+      font-size: 0.72rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* Google button */
+    #g-signin-hidden {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+    .btn-google {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 20px;
+      background: #fff;
+      color: #1f1f1f;
+      border: none;
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity .15s, transform .15s;
+      box-shadow: 0 4px 20px rgba(0,255,133,.2);
+    }
+    .btn-google:hover  { opacity: .93; transform: translateY(-1px); }
+    .btn-google:active { transform: translateY(0); opacity: .85; }
+    .btn-google:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .secure {
+      font-size: 0.72rem;
+      color: var(--gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+
+    /* Logo */
+    .logo {
+      font-size: 1rem;
+      font-weight: 800;
+      color: var(--gray);
+      animation: fade-up .5s .3s ease both;
+    }
+    .logo span { color: var(--green); }
+  </style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="icon-wrap">🎉</div>
+
+  <div class="headline">
+    <h1>Pagamento confirmado!<br><span>Bem-vindo ao VX Pages.</span></h1>
+    <p>Seu acesso está pronto. Agora é só criar sua conta para começar a usar a plataforma.</p>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Crie sua conta gratuita</div>
+    <p class="card-sub">Leva menos de 10 segundos. Sem senha, sem complicação.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <span>Clique em "Entrar com Google" abaixo</span>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <span>Escolha sua conta Google</span>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <span>Acesse o dashboard e comece a criar suas páginas</span>
+      </div>
+    </div>
+
+    <div id="g-signin-hidden"></div>
+
+    <button class="btn-google" id="login-btn" onclick="doLogin()">
+      <svg width="18" height="18" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+        <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/>
+        <path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/>
+        <path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/>
+        <path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/>
+      </svg>
+      Entrar com Google
+    </button>
+
+    <p class="secure">🔒 Seus dados estão protegidos</p>
+  </div>
+
+  <p class="logo">VX <span>Pages</span></p>
+
+</div>
+
+<script>
+  const GOOGLE_CLIENT_ID = '57647740881-o82reg3ddlgt34n8feple9bs2l36evn7.apps.googleusercontent.com';
+
+  function parseJwt(token) {
+    try {
+      const base64 = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+      return JSON.parse(decodeURIComponent(
+        atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')
+      ));
+    } catch { return null; }
+  }
+
+  function handleCredentialResponse(response) {
+    const payload = parseJwt(response.credential);
+    if (!payload) return;
+    localStorage.setItem('vxpages_user', JSON.stringify({
+      name: payload.name, email: payload.email, picture: payload.picture,
+      given: payload.given_name, exp: payload.exp, token: response.credential,
+    }));
+    window.location.href = '/dash';
+  }
+
+  function doLogin() {
+    const googleBtn = document.querySelector('#g-signin-hidden div[role="button"]');
+    if (googleBtn) googleBtn.click();
+  }
+
+  function init() {
+    if (typeof google === 'undefined') { setTimeout(init, 300); return; }
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+      auto_select: false,
+    });
+    google.accounts.id.renderButton(
+      document.getElementById('g-signin-hidden'),
+      { theme: 'outline', size: 'large', width: 300 }
+    );
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>
