@@ -403,32 +403,17 @@ app.post('/api/checkout', async (req, res) => {
   }
 
   try {
-    // 1. Cria/atualiza cliente
-    const customer = await abacatePost('/customer/create', {
-      name,
-      email,
-      ...(cellphone && { cellphone }),
-      ...(taxId     && { taxId }),
+    // Cria cobrança v1 com produto inline
+    const billing = await abacatePost('/billing/create', {
+      frequency: 'ONE_TIME',
+      methods:   ['PIX', 'CREDIT_CARD'],
+      products:  [{ externalId: 'vxpages-anual', name: 'VX Pages — Plano Anual Completo', quantity: 1, price: parseInt(process.env.PLAN_PRICE_ANUAL || '29700', 10) }],
+      customer:  { name, email, cellphone, ...(taxId && { taxId }) },
+      returnUrl:     `${BASE_URL}/dash`,
+      completionUrl: `${BASE_URL}/dash?payment=success`,
     });
 
-    // 2. Cria checkout com produto pré-cadastrado (v2)
-    const checkoutRes = await fetch('https://api.abacatepay.com/v2/checkouts/create', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${ABACATE_KEY}` },
-      body: JSON.stringify({
-        items: [{ id: process.env.ABACATEPAY_PRODUCT_ID, quantity: 1 }],
-        ...(customer?.data?.id && { customerId: customer.data.id }),
-        returnUrl:     `${BASE_URL}/dash`,
-        completionUrl: `${BASE_URL}/dash?payment=success`,
-      }),
-    });
-    if (!checkoutRes.ok) {
-      const text = await checkoutRes.text();
-      throw new Error(`AbacatePay checkout ${checkoutRes.status}: ${text}`);
-    }
-    const checkout = await checkoutRes.json();
-
-    res.json({ url: checkout.data?.url || checkout.url });
+    res.json({ url: billing.data?.url || billing.url });
   } catch (err) {
     console.error('[/api/checkout]', err.message);
     res.status(500).json({ error: 'Erro ao criar cobrança.' });
