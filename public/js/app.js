@@ -405,7 +405,7 @@ function selectPalette(el) {
 }
 
 function selectStyle(el) {
-  $$('.style-option').forEach(s => s.classList.remove('selected'));
+  el.closest('.style-selector, [id]').querySelectorAll('.style-option').forEach(s => s.classList.remove('selected'));
   el.classList.add('selected');
 }
 
