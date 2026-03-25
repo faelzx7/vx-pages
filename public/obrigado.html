@@ -256,7 +256,8 @@
   function doLogin() {
     const btn = document.querySelector('#g-signin-hidden div[role="button"]');
     if (btn) { btn.click(); return; }
-    if (typeof google !== 'undefined') google.accounts.id.prompt();
+    // Google ainda carregando — tenta de novo em 300ms
+    setTimeout(doLogin, 300);
   }
 
   function init() {
@@ -271,8 +272,10 @@
       document.getElementById('g-signin-hidden'),
       { theme: 'outline', size: 'large', type: 'standard', width: 300 }
     );
+    document.getElementById('login-btn').disabled = false;
   }
 
+  document.getElementById('login-btn').disabled = true;
   document.addEventListener('DOMContentLoaded', init);
 </script>
 
