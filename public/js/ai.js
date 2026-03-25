@@ -2,60 +2,49 @@
    VX PAGES — Claude AI Integration
    ============================================= */
 
-// ─── Credits System ───────────────────────────
-// MVP: client-side control via localStorage
-// Key: vx_credits_{email}
-
-const CREDITS_LIMIT = 15;
-
-function _creditsKey() {
-  try {
-    const u = JSON.parse(localStorage.getItem('vxpages_user') || '{}');
-    return u.email ? `vx_credits_${u.email}` : null;
-  } catch { return null; }
+// ─── Credits System (Supabase) ────────────────
+function _userEmail() {
+  try { return JSON.parse(localStorage.getItem('vxpages_user') || '{}').email || null; } catch { return null; }
 }
 
-function initCredits() {
-  const key = _creditsKey();
-  if (!key) return;
+// Cache local para não fazer fetch a cada checagem
+let _creditsCache = null;
 
-  const now  = new Date();
-  const raw  = localStorage.getItem(key);
-  let data   = null;
-
-  if (raw) {
-    try { data = JSON.parse(raw); } catch { data = null; }
-  }
-
-  // If no data or resetDate already passed → reset
-  if (!data || new Date(data.resetDate) <= now) {
-    const resetDate = new Date(now.getFullYear(), now.getMonth() + 1, 1);
-    data = { used: 0, limit: CREDITS_LIMIT, resetDate: resetDate.toISOString().slice(0, 10) };
-    localStorage.setItem(key, JSON.stringify(data));
-  }
-  return data;
+async function loadCredits() {
+  const email = _userEmail();
+  if (!email) return;
+  try {
+    const res = await fetch(`/api/credits?email=${encodeURIComponent(email)}`);
+    if (res.ok) {
+      _creditsCache = await res.json();
+      updateCreditsUI();
+    }
+  } catch {}
 }
 
 function getCreditsInfo() {
-  const key  = _creditsKey();
-  const data = key ? (() => { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } })() : null;
-  if (!data) return { used: 0, limit: CREDITS_LIMIT, remaining: CREDITS_LIMIT, resetDate: null };
-  return { used: data.used, limit: data.limit, remaining: Math.max(0, data.limit - data.used), resetDate: data.resetDate };
+  if (_creditsCache) return _creditsCache;
+  return { used: 0, limit: 15, remaining: 15, reset_date: null };
 }
 
 function hasCredits() {
-  const info = getCreditsInfo();
-  return info.remaining > 0;
+  return getCreditsInfo().remaining > 0;
 }
 
-function useCredit() {
-  const key = _creditsKey();
-  if (!key) return;
-  const info = getCreditsInfo();
-  const newData = { used: info.used + 1, limit: info.limit, resetDate: info.resetDate };
-  localStorage.setItem(key, JSON.stringify(newData));
-  // Update UI
-  updateCreditsUI();
+async function useCredit() {
+  const email = _userEmail();
+  if (!email) return;
+  try {
+    const res = await fetch('/api/credits/use', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email }),
+    });
+    if (res.ok) {
+      _creditsCache = await res.json();
+      updateCreditsUI();
+    }
+  } catch {}
 }
 
 function updateCreditsUI() {
@@ -93,9 +82,9 @@ async function callClaude(action, data) {
   // Check credits before calling
   if (!hasCredits()) {
     const info = getCreditsInfo();
-    const date = info.resetDate ? new Date(info.resetDate).toLocaleDateString('pt-BR') : 'próximo mês';
+    const date = info.reset_date ? new Date(info.reset_date).toLocaleDateString('pt-BR') : 'próximo mês';
     showCreditsExhaustedModal(date);
-    throw new Error(`Limite de ${CREDITS_LIMIT} gerações atingido este mês.`);
+    throw new Error(`Limite de ${info.limit} gerações atingido este mês.`);
   }
 
   const res = await fetch('/api/claude', {
@@ -108,7 +97,7 @@ async function callClaude(action, data) {
   if (!res.ok) throw new Error(json.error || 'Erro desconhecido');
 
   // Only count successful calls
-  useCredit();
+  await useCredit();
   return json.result;
 }
 
@@ -450,8 +439,7 @@ function updateApiKeyStatus(hasKey) {
 
 // ─── Init ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
-  initCredits();
-  updateCreditsUI();
+  loadCredits();
   initAiSettings();
 
   document.querySelectorAll('[data-nav]').forEach(el => {

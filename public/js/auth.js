@@ -61,7 +61,7 @@ function requireAuth() {
 }
 
 // ─── Callback do Google ───────────────────────
-function handleCredentialResponse(response) {
+async function handleCredentialResponse(response) {
   const payload = parseJwt(response.credential);
   if (!payload) {
     showToast('Falha ao autenticar. Tente novamente.', 'error');
@@ -78,6 +78,16 @@ function handleCredentialResponse(response) {
   };
 
   saveSession(currentUser);
+
+  // Sync user + credits to Supabase
+  try {
+    await fetch('/api/user/sync', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: currentUser.email, name: currentUser.name, picture: currentUser.picture }),
+    });
+  } catch {}
+
   window.location.href = '/dash';
 }
 

@@ -14,6 +14,13 @@ const Anthropic  = require('@anthropic-ai/sdk');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 const rateLimit  = require('express-rate-limit');
 const crypto     = require('crypto');
+const { createClient } = require('@supabase/supabase-js');
+
+// Supabase
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SECRET_KEY
+);
 
 // Load generate_page prompt from file (fallback to inline if missing)
 let GENERATE_PAGE_PROMPT = '';
@@ -192,6 +199,70 @@ app.use(express.json({ limit: '50kb' }));
 // ─── Servir arquivos estáticos de public/ ─────
 // Apenas arquivos dentro de public/ são expostos — server.js, .env, etc. nunca são acessíveis.
 app.use(express.static(path.join(__dirname, 'public'), { index: false }));
+
+// ─── Supabase: User sync ──────────────────────
+app.post('/api/user/sync', async (req, res) => {
+  const { email, name, picture } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
+  try {
+    // Upsert user
+    await supabase.from('users').upsert({ email, name, picture }, { onConflict: 'email', ignoreDuplicates: false });
+
+    // Ensure credits row exists
+    const { data: existing } = await supabase.from('credits').select('email').eq('email', email).single();
+    if (!existing) {
+      const resetDate = new Date();
+      resetDate.setMonth(resetDate.getMonth() + 1, 1);
+      await supabase.from('credits').insert({ email, used: 0, limit: 15, reset_date: resetDate.toISOString().slice(0, 10) });
+    }
+
+    // Get credits
+    const { data: credits } = await supabase.from('credits').select('*').eq('email', email).single();
+    res.json({ ok: true, credits });
+  } catch (err) {
+    console.error('[/api/user/sync]', err.message);
+    res.status(500).json({ error: 'Erro ao sincronizar usuário.' });
+  }
+});
+
+// ─── Supabase: Credits ────────────────────────
+app.get('/api/credits', async (req, res) => {
+  const email = req.query.email;
+  if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
+  try {
+    const { data } = await supabase.from('credits').select('*').eq('email', email).single();
+    if (!data) return res.json({ used: 0, limit: 15, remaining: 15 });
+
+    // Auto-reset if past reset_date
+    if (new Date() >= new Date(data.reset_date)) {
+      const resetDate = new Date();
+      resetDate.setMonth(resetDate.getMonth() + 1, 1);
+      await supabase.from('credits').update({ used: 0, reset_date: resetDate.toISOString().slice(0, 10) }).eq('email', email);
+      data.used = 0;
+    }
+
+    res.json({ used: data.used, limit: data.limit, remaining: data.limit - data.used, reset_date: data.reset_date });
+  } catch (err) {
+    console.error('[/api/credits GET]', err.message);
+    res.status(500).json({ error: 'Erro ao buscar créditos.' });
+  }
+});
+
+app.post('/api/credits/use', async (req, res) => {
+  const { email } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
+  try {
+    const { data } = await supabase.from('credits').select('*').eq('email', email).single();
+    if (!data) return res.status(404).json({ error: 'Créditos não encontrados.' });
+    if (data.used >= data.limit) return res.status(402).json({ error: 'Créditos esgotados.', reset_date: data.reset_date });
+
+    await supabase.from('credits').update({ used: data.used + 1, updated_at: new Date().toISOString() }).eq('email', email);
+    res.json({ used: data.used + 1, limit: data.limit, remaining: data.limit - data.used - 1 });
+  } catch (err) {
+    console.error('[/api/credits/use]', err.message);
+    res.status(500).json({ error: 'Erro ao usar crédito.' });
+  }
+});
 
 // ─── Rotas de página ──────────────────────────
 app.get('/',         (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pgnvnds.html')));
