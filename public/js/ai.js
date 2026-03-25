@@ -397,7 +397,7 @@ function setAiLoading(btn, loading) {
 function initAiSettings() {
   const input = document.getElementById('claude-api-key-input');
   if (!input) return;
-  const saved = getApiKey();
+  const saved = null; // API key is server-side
   if (saved) {
     input.value = saved.slice(0, 8) + '•'.repeat(Math.max(0, saved.length - 8));
     input.dataset.real = saved;
