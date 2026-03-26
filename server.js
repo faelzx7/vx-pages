@@ -62,7 +62,7 @@ const PLANS = {
 const BASE_URL = process.env.BASE_URL || `http://localhost:${PORT}`;
 
 // ─── Modelos ──────────────────────────────────
-const MODEL_FAST    = 'claude-haiku-4-5';     // ~R$0,02/chamada
+const MODEL_FAST    = 'claude-haiku-4-5-20251001'; // ~R$0,02/chamada
 const MODEL_COMPLEX = 'claude-sonnet-4-6';    // ~R$0,07/chamada
 const MODEL_IMAGE   = 'imagen-3.0-generate-002'; // Google Imagen 3
 
