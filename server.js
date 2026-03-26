@@ -485,6 +485,8 @@ Tom desejado: ${s.tone || 'direto e confiante'}`;
     res.status(status >= 500 ? 500 : status).json({
       error: status === 429
         ? 'Serviço temporariamente sobrecarregado. Tente em instantes.'
+        : status === 401
+        ? 'API key inválida. Verifique a configuração no servidor.'
         : 'Erro ao processar sua solicitação.',
     });
   }
