@@ -6,8 +6,8 @@
 const GOOGLE_CLIENT_ID = '57647740881-o82reg3ddlgt34n8feple9bs2l36evn7.apps.googleusercontent.com';
 
 // ─── Estado do usuário ────────────────────────
-// Use window.window.currentUser so other scripts (app.js, ai.js) can access it.
-window.window.currentUser = null;
+// Use window.currentUser so other scripts (app.js, ai.js) can access it.
+window.currentUser = null;
 
 // ─── Decode JWT (sem biblioteca externa) ─────
 function parseJwt(token) {
