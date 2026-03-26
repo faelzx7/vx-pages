@@ -464,17 +464,24 @@ Tom desejado: ${s.tone || 'direto e confiante'}`;
     }
 
     const model      = COMPLEX_ACTIONS.has(action) ? MODEL_COMPLEX : MODEL_FAST;
-    const maxTokens  = action === 'generate_page' ? 8192 : 1024;
+    const maxTokens  = action === 'generate_page' ? 16000 : 1024;
     const fullSystem = `${BASE_SYSTEM_PROMPT}\n\n---\n\n${actionPrompt}`;
 
     console.log(`[/api/claude] action=${action} model=${model} max_tokens=${maxTokens}`);
 
-    const response = await CLAUDE.messages.create({
+    const createParams = {
       model,
       max_tokens: maxTokens,
       system:     fullSystem,
       messages:   [{ role: 'user', content: userPrompt }],
-    });
+    };
+
+    // Saída estendida para geração de página completa
+    const requestOptions = action === 'generate_page'
+      ? { headers: { 'anthropic-beta': 'output-128k-2025-02-19' } }
+      : {};
+
+    const response = await CLAUDE.messages.create(createParams, requestOptions);
 
     const text = response.content.find(b => b.type === 'text')?.text || '';
     res.json({ result: text });
