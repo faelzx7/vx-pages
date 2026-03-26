@@ -1100,6 +1100,34 @@
 </div><!-- /app -->
 
 <!-- ─── Credits Exhausted Modal ───────────── -->
+<!-- ─── Editor Modal ──────────────────────── -->
+<div id="editor-modal" style="display:none;position:fixed;inset:0;z-index:9998;background:rgba(0,0,0,.85);backdrop-filter:blur(4px);flex-direction:column">
+  <!-- Header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:12px">
+      <span style="font-size:1rem;font-weight:700" id="editor-title">Editar Página</span>
+      <span style="font-size:0.72rem;color:var(--gray);background:var(--bg-dark);padding:3px 8px;border-radius:6px">HTML</span>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center">
+      <button id="editor-save-btn" onclick="saveEditedPage()" style="padding:8px 20px;background:var(--green);border:none;border-radius:8px;color:#052F33;font-weight:700;font-size:0.85rem;cursor:pointer">Salvar</button>
+      <button onclick="closeEditor()" style="padding:8px 14px;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;color:var(--gray);font-size:0.85rem;cursor:pointer">✕ Fechar</button>
+    </div>
+  </div>
+  <!-- Body: editor + preview -->
+  <div style="display:flex;flex:1;overflow:hidden;gap:0">
+    <!-- Textarea -->
+    <div style="width:45%;display:flex;flex-direction:column;border-right:1px solid var(--border)">
+      <div style="padding:8px 14px;font-size:0.7rem;color:var(--gray);background:var(--bg-card);border-bottom:1px solid var(--border)">✏️ Código HTML — edite diretamente</div>
+      <textarea id="editor-textarea" spellcheck="false" style="flex:1;background:#0a1a1c;color:#e0f0f0;border:none;outline:none;padding:16px;font-family:monospace;font-size:0.8rem;line-height:1.6;resize:none;overflow-y:auto"></textarea>
+    </div>
+    <!-- Preview -->
+    <div style="flex:1;display:flex;flex-direction:column">
+      <div style="padding:8px 14px;font-size:0.7rem;color:var(--gray);background:var(--bg-card);border-bottom:1px solid var(--border)">👁 Preview em tempo real</div>
+      <iframe id="editor-preview" style="flex:1;border:none;background:#fff"></iframe>
+    </div>
+  </div>
+</div>
+
 <div id="credits-modal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:20px">
   <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:20px;padding:36px 32px;width:100%;max-width:420px;text-align:center">
     <div style="font-size:2.5rem;margin-bottom:16px">🔋</div>

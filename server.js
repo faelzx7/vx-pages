@@ -314,6 +314,24 @@ app.get('/api/pages/:id/html', async (req, res) => {
   }
 });
 
+app.patch('/api/pages/:id', async (req, res) => {
+  const { email, html, title } = req.body || {};
+  if (!email || !html) return res.status(400).json({ error: 'Email e HTML obrigatórios.' });
+  try {
+    const updates = { html };
+    if (title) updates.title = title;
+    const { error } = await supabase.from('pages')
+      .update(updates)
+      .eq('id', req.params.id)
+      .eq('email', email);
+    if (error) throw error;
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[/api/pages PATCH]', err.message);
+    res.status(500).json({ error: 'Erro ao atualizar página.' });
+  }
+});
+
 app.delete('/api/pages/:id', async (req, res) => {
   const email = req.query.email;
   if (!email) return res.status(400).json({ error: 'Email obrigatório.' });

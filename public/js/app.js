@@ -346,6 +346,7 @@ function renderPages(pages = []) {
           </div>
           <div class="pg-thumb-overlay">
             <button onclick="viewPage('${p.id}')">Ver Página</button>
+            <button onclick="editPage('${p.id}', '${p.title.replace(/'/g, "\\'")}')">Editar</button>
             <button onclick="deletePage('${p.id}')" style="background:rgba(255,77,109,.2);border-color:rgba(255,77,109,.4)">Deletar</button>
           </div>
         </div>
@@ -374,6 +375,72 @@ async function viewPage(id) {
       win.document.close();
     }
   } catch { showToast('Erro ao abrir página.', 'error'); }
+}
+
+async function editPage(id, title) {
+  const email = window.currentUser?.email;
+  if (!email) return;
+  try {
+    const res  = await fetch(`/api/pages/${id}/html?email=${encodeURIComponent(email)}`);
+    const data = await res.json();
+    if (!data.html) return showToast('Erro ao carregar página.', 'error');
+
+    const modal    = document.getElementById('editor-modal');
+    const textarea = document.getElementById('editor-textarea');
+    const iframe   = document.getElementById('editor-preview');
+    const titleEl  = document.getElementById('editor-title');
+
+    if (!modal) return;
+
+    titleEl.textContent  = title || 'Editar Página';
+    textarea.value       = data.html;
+    modal.dataset.pageId = id;
+    modal.style.display  = 'flex';
+    document.body.style.overflow = 'hidden';
+
+    // Atualiza preview ao digitar
+    const updatePreview = () => {
+      const doc = iframe.contentDocument || iframe.contentWindow.document;
+      doc.open(); doc.write(textarea.value); doc.close();
+    };
+    updatePreview();
+    textarea.oninput = updatePreview;
+  } catch { showToast('Erro ao carregar página.', 'error'); }
+}
+
+function closeEditor() {
+  const modal = document.getElementById('editor-modal');
+  if (modal) { modal.style.display = 'none'; }
+  document.body.style.overflow = '';
+}
+
+async function saveEditedPage() {
+  const modal    = document.getElementById('editor-modal');
+  const textarea = document.getElementById('editor-textarea');
+  const id       = modal?.dataset.pageId;
+  const email    = window.currentUser?.email;
+  if (!id || !email) return;
+
+  const btn = document.getElementById('editor-save-btn');
+  btn.disabled = true;
+  btn.textContent = 'Salvando...';
+
+  try {
+    const res = await fetch(`/api/pages/${id}`, {
+      method:  'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email, html: textarea.value }),
+    });
+    const data = await res.json();
+    if (data.ok) {
+      showToast('Página salva! ✅', 'success');
+      closeEditor();
+      loadUserPages();
+    } else {
+      showToast(data.error || 'Erro ao salvar.', 'error');
+    }
+  } catch { showToast('Erro ao salvar.', 'error'); }
+  finally  { btn.disabled = false; btn.textContent = 'Salvar'; }
 }
 
 async function deletePage(id) {
