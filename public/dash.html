@@ -513,6 +513,17 @@
                       <option>Mais de 20</option>
                     </select>
                   </div>
+                  <div style="border-top:1px solid var(--border);margin:8px 0 16px;padding-top:16px">
+                    <div style="font-size:0.75rem;font-weight:700;color:var(--green);margin-bottom:12px;letter-spacing:.5px">🔗 LINKS DA PÁGINA (a IA vai inserir automaticamente)</div>
+                    <div class="form-group" style="margin-bottom:12px">
+                      <label>WhatsApp para contato <span style="color:var(--gray);font-weight:400">(opcional)</span></label>
+                      <input id="field-whatsapp" type="text" placeholder="Ex: 5511999999999 (só números com DDI)">
+                    </div>
+                    <div class="form-group" style="margin-bottom:0">
+                      <label>Link do checkout / pagamento <span style="color:var(--gray);font-weight:400">(opcional)</span></label>
+                      <input id="field-checkout-url" type="text" placeholder="Ex: https://pay.hotmart.com/... ou https://kiwify.com.br/...">
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -553,13 +564,21 @@
                     <label>Paleta de cores principal</label>
                     <div class="color-palette">
                       <div class="palette-item selected" style="background:#00ff85" onclick="selectPalette(this)" title="Verde VX"></div>
-                      <div class="palette-item" style="background:#4cc9f0" onclick="selectPalette(this)" title="Azul Elétrico"></div>
-                      <div class="palette-item" style="background:#7b2fff" onclick="selectPalette(this)" title="Roxo Premium"></div>
-                      <div class="palette-item" style="background:#ff4d6d" onclick="selectPalette(this)" title="Vermelho Poder"></div>
-                      <div class="palette-item" style="background:#ffd166" onclick="selectPalette(this)" title="Dourado"></div>
-                      <div class="palette-item" style="background:#ff6b35" onclick="selectPalette(this)" title="Laranja Energia"></div>
                       <div class="palette-item" style="background:#06d6a0" onclick="selectPalette(this)" title="Verde Esmeralda"></div>
-                      <div class="palette-item" style="background:#ffffff" onclick="selectPalette(this)" title="Branco Puro" style="border:1px solid var(--border)"></div>
+                      <div class="palette-item" style="background:#4cc9f0" onclick="selectPalette(this)" title="Azul Elétrico"></div>
+                      <div class="palette-item" style="background:#4361ee" onclick="selectPalette(this)" title="Azul Índigo"></div>
+                      <div class="palette-item" style="background:#023e8a" onclick="selectPalette(this)" title="Azul Navy"></div>
+                      <div class="palette-item" style="background:#7b2fff" onclick="selectPalette(this)" title="Roxo Premium"></div>
+                      <div class="palette-item" style="background:#c77dff" onclick="selectPalette(this)" title="Lilás"></div>
+                      <div class="palette-item" style="background:#f72585" onclick="selectPalette(this)" title="Rosa Neon"></div>
+                      <div class="palette-item" style="background:#ff4d6d" onclick="selectPalette(this)" title="Vermelho Poder"></div>
+                      <div class="palette-item" style="background:#ff6b35" onclick="selectPalette(this)" title="Laranja Energia"></div>
+                      <div class="palette-item" style="background:#ffd166" onclick="selectPalette(this)" title="Dourado"></div>
+                      <div class="palette-item" style="background:#f9c74f" onclick="selectPalette(this)" title="Amarelo Sol"></div>
+                      <div class="palette-item" style="background:#90be6d" onclick="selectPalette(this)" title="Verde Lima"></div>
+                      <div class="palette-item" style="background:#e63946" onclick="selectPalette(this)" title="Vermelho Vivo"></div>
+                      <div class="palette-item" style="background:#adb5bd" onclick="selectPalette(this)" title="Prata"></div>
+                      <div class="palette-item" style="background:#ffffff;border:1px solid rgba(255,255,255,.2)" onclick="selectPalette(this)" title="Branco Puro"></div>
                     </div>
                   </div>
                   <div class="form-group">
@@ -611,6 +630,7 @@
                   </div>
                   <div style="display:flex;gap:10px;margin-top:12px;display:none" id="preview-actions">
                     <button class="btn-secondary" onclick="openPageFullscreen()" style="font-size:0.82rem;padding:8px 16px">↗ Ver em tela cheia</button>
+                    <button class="btn-primary" onclick="downloadPage()" style="font-size:0.82rem;padding:8px 16px;background:var(--green);color:#052F33">⬇ Baixar HTML</button>
                   </div>
                   <div style="display:flex;gap:10px;margin-top:16px">
                     <div class="form-group" style="flex:1;margin:0">

@@ -123,8 +123,28 @@ function getBuilderData() {
       const sel = document.querySelector('.palette-item.selected');
       return sel ? (sel.title || 'Verde') : 'Verde';
     })(),
-    promise: get('field-promise'),
+    promise:     get('field-promise'),
+    whatsapp:    get('field-whatsapp'),
+    checkoutUrl: get('field-checkout-url'),
   };
+}
+
+// ─── Download HTML ────────────────────────────
+function downloadPage() {
+  const html = window._generatedPageHtml;
+  if (!html) return;
+  const title = document.getElementById('field-product')?.value?.trim() || 'minha-pagina';
+  const slug  = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 40);
+  const blob  = new Blob([html], { type: 'text/html' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  a.href     = url;
+  a.download = `${slug}.html`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  showToast('HTML baixado com sucesso! ⬇', 'success');
 }
 
 // ─── Suggest Description ─────────────────────

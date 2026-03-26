@@ -368,6 +368,8 @@ app.post('/api/claude', aiLimiter, async (req, res) => {
     text:            sanitizeField(data.text, 2000),
     goal:            sanitizeField(data.goal),
     tone:            sanitizeField(data.tone, 100),
+    whatsapp:        sanitizeField(data.whatsapp, 20).replace(/\D/g, ''),
+    checkoutUrl:     sanitizeField(data.checkoutUrl, 500),
   };
 
   try {
@@ -421,7 +423,9 @@ Texto do CTA: ${s.promise || '(gerar automaticamente)'}
 Preço/Oferta: ${s.price || '(não informado)'}
 Estilo visual: ${s.style || 'Dark Profissional'}
 Paleta de cores: ${s.palette || 'Verde VX (#00FF85)'}
-Principais objeções do público: ${s.objections || 'preço, confiança, prazo de resultado'}`;
+Principais objeções do público: ${s.objections || 'preço, confiança, prazo de resultado'}
+${s.whatsapp ? `WhatsApp de contato: use exatamente este link nos botões de WhatsApp: https://wa.me/${s.whatsapp}` : 'WhatsApp: não informado — use "#" como href nos botões de WhatsApp'}
+${s.checkoutUrl ? `Link do checkout/pagamento: use exatamente esta URL nos botões de compra: ${s.checkoutUrl}` : 'Checkout: não informado — use "#" como href nos botões de compra'}`;
         break;
 
       case 'generate_seo':
