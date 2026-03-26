@@ -464,7 +464,7 @@ Tom desejado: ${s.tone || 'direto e confiante'}`;
     }
 
     const model      = COMPLEX_ACTIONS.has(action) ? MODEL_COMPLEX : MODEL_FAST;
-    const maxTokens  = action === 'generate_page' ? 8096 : 1024;
+    const maxTokens  = action === 'generate_page' ? 8192 : 1024;
     const fullSystem = `${BASE_SYSTEM_PROMPT}\n\n---\n\n${actionPrompt}`;
 
     console.log(`[/api/claude] action=${action} model=${model} max_tokens=${maxTokens}`);
