@@ -322,10 +322,21 @@ async function aiGeneratePage() {
 function openPageFullscreen() {
   const html = window._generatedPageHtml;
   if (!html) return;
-  const win = window.open('', '_blank');
-  win.document.open();
-  win.document.write(html);
-  win.document.close();
+  // Usa blob URL para evitar bloqueio de popup
+  const blob = new Blob([html], { type: 'text/html' });
+  const url  = URL.createObjectURL(blob);
+  const win  = window.open(url, '_blank');
+  if (!win) {
+    // Popup bloqueado — abre via link clicável
+    const a = document.createElement('a');
+    a.href = url;
+    a.target = '_blank';
+    a.rel = 'noopener';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+  }
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
 }
 
 
