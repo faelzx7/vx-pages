@@ -332,7 +332,7 @@ async function exportPage() {
 
     // Mostra URL pública no browser-url do preview
     if (json.url) {
-      document.querySelectorAll('.browser-url').forEach(el => el.textContent = json.url);
+      document.querySelectorAll('.browser-url, #preview-browser-url').forEach(el => el.textContent = json.url);
       // Copia URL para clipboard
       navigator.clipboard?.writeText(json.url).catch(() => {});
       setTimeout(() => showToast(`URL copiada: ${json.url}`, 'info', 5000), 800);

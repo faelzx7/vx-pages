@@ -261,6 +261,121 @@ function renderGeneratedPage(container, p) {
   `;
 }
 
+// ─── Chat VX AI (Step 5) ─────────────────────
+const chatHistory = [];
+
+function appendChatMessage(role, text) {
+  const container = document.getElementById('chat-messages');
+  if (!container) return;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = `chat-msg ${role}`;
+
+  const bubble = document.createElement('div');
+  bubble.className = `chat-bubble ${role}`;
+  bubble.innerHTML = text.replace(/\n/g, '<br>');
+
+  wrapper.appendChild(bubble);
+  container.appendChild(wrapper);
+  container.scrollTop = container.scrollHeight;
+  return wrapper;
+}
+
+function appendChatLoading() {
+  const container = document.getElementById('chat-messages');
+  if (!container) return null;
+
+  const wrapper = document.createElement('div');
+  wrapper.className = 'chat-msg ai';
+  wrapper.innerHTML = `
+    <div class="chat-bubble ai" style="padding:12px 16px">
+      <div class="gen-dots"><span></span><span></span><span></span></div>
+    </div>`;
+  container.appendChild(wrapper);
+  container.scrollTop = container.scrollHeight;
+  return wrapper;
+}
+
+function useSuggestion(btn) {
+  const input = document.getElementById('chat-input');
+  if (input) {
+    input.value = btn.textContent;
+    input.focus();
+  }
+  // Esconde sugestões após uso
+  const suggestions = document.getElementById('chat-suggestions');
+  if (suggestions) suggestions.style.display = 'none';
+}
+
+async function sendChatMessage() {
+  const input   = document.getElementById('chat-input');
+  const sendBtn = document.getElementById('chat-send-btn');
+  if (!input) return;
+
+  const instruction = input.value.trim();
+  if (!instruction) return;
+
+  const html = window._generatedHTML;
+  if (!html) {
+    showToast('Gere a página primeiro.', 'error');
+    return;
+  }
+
+  // UI: desabilita input, adiciona mensagem do user
+  input.value = '';
+  input.disabled = true;
+  if (sendBtn) sendBtn.disabled = true;
+
+  appendChatMessage('user', instruction);
+  const loadingEl = appendChatLoading();
+
+  // Overlay de loading no preview
+  const loadingOverlay = document.getElementById('preview-ai-loading');
+  if (loadingOverlay) loadingOverlay.style.display = 'flex';
+
+  try {
+    const newHtml = await callClaude('edit_page', { html, instruction });
+
+    // Valida que voltou HTML
+    if (!newHtml || !newHtml.trim().startsWith('<')) {
+      throw new Error('A IA não devolveu um HTML válido. Tente reformular o pedido.');
+    }
+
+    // Atualiza HTML em memória
+    window._generatedHTML = newHtml;
+
+    // Atualiza iframe
+    const iframe = document.getElementById('page-preview-iframe');
+    if (iframe) {
+      iframe.style.display = 'block';
+      iframe.srcdoc = newHtml;
+    }
+    const placeholder = document.getElementById('preview-placeholder');
+    if (placeholder) placeholder.style.display = 'none';
+
+    // Remove loading bubble, adiciona resposta da IA
+    if (loadingEl) loadingEl.remove();
+    appendChatMessage('ai', 'Feito! ✅ Verifique o preview ao lado. Quer mais algum ajuste?');
+
+    // Guarda no histórico (para contexto futuro)
+    chatHistory.push({ role: 'user', text: instruction });
+    chatHistory.push({ role: 'ai',   text: 'Alteração aplicada.' });
+
+  } catch (e) {
+    if (loadingEl) loadingEl.remove();
+    const errWrapper = document.createElement('div');
+    errWrapper.className = 'chat-msg ai';
+    errWrapper.innerHTML = `<div class="chat-bubble error">⚠️ ${e.message}</div>`;
+    document.getElementById('chat-messages')?.appendChild(errWrapper);
+    document.getElementById('chat-messages').scrollTop = 99999;
+  } finally {
+    input.disabled = false;
+    if (sendBtn) sendBtn.disabled = false;
+    if (loadingOverlay) loadingOverlay.style.display = 'none';
+    input.focus();
+  }
+}
+
 // ─── Fullscreen / Download helpers ───────────
 function openPageFullscreen() {
   const html = window._generatedHTML;

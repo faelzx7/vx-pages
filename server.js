@@ -67,7 +67,7 @@ const MODEL_COMPLEX = 'claude-sonnet-4-6';    // ~R$0,07/chamada
 const MODEL_IMAGE   = 'imagen-3.0-generate-002'; // Google Imagen 3
 
 // Ações que usam Sonnet (mais complexas)
-const COMPLEX_ACTIONS = new Set(['generate_page']);
+const COMPLEX_ACTIONS = new Set(['generate_page', 'edit_page']);
 
 if (!process.env.ANTHROPIC_API_KEY) {
   console.warn('⚠️  ANTHROPIC_API_KEY não definida no .env');
@@ -587,12 +587,38 @@ Objetivo do texto: ${s.goal || 'converter visitante em lead ou comprador'}
 Tom desejado: ${s.tone || 'direto e confiante'}`;
         break;
 
+      case 'edit_page': {
+        // Recebe HTML atual + instrução do usuário + histórico de chat
+        const pageHtml    = sanitizeField(data.html || '', 400000);
+        const instruction = sanitizeField(data.instruction || '', 1000);
+        if (!pageHtml || !instruction) {
+          return res.status(400).json({ error: 'HTML e instrução são obrigatórios.' });
+        }
+
+        actionPrompt = `Você é um editor de landing pages especialista em conversão.
+O usuário vai te passar o HTML completo de uma landing page e uma instrução de ajuste.
+Sua tarefa: aplicar exatamente o que foi pedido e devolver o HTML completo atualizado.
+
+Regras obrigatórias:
+1. Responda SOMENTE com o HTML completo — sem markdown, sem explicações, sem blocos de código.
+2. Mantenha TODA a estrutura, CSS e seções existentes. Altere APENAS o que foi pedido.
+3. Preserve todos os atributos data-edit, classes, IDs e scripts existentes.
+4. Se a instrução for ambígua, interprete da forma mais útil para conversão.
+5. O HTML deve continuar standalone (CSS inline no <style>, sem imports externos).`;
+
+        userPrompt = `Instrução: ${instruction}
+
+HTML atual da página:
+${pageHtml}`;
+        break;
+      }
+
       default:
         return res.status(400).json({ error: 'Ação desconhecida.' });
     }
 
     const model      = COMPLEX_ACTIONS.has(action) ? MODEL_COMPLEX : MODEL_FAST;
-    const maxTokens  = action === 'generate_page' ? 16000 : 1024;
+    const maxTokens  = (action === 'generate_page' || action === 'edit_page') ? 16000 : 1024;
     const fullSystem = `${BASE_SYSTEM_PROMPT}\n\n---\n\n${actionPrompt}`;
 
     console.log(`[/api/claude] action=${action} model=${model} max_tokens=${maxTokens}`);
@@ -604,8 +630,8 @@ Tom desejado: ${s.tone || 'direto e confiante'}`;
       messages:   [{ role: 'user', content: userPrompt }],
     };
 
-    // Saída estendida para geração de página completa
-    const requestOptions = action === 'generate_page'
+    // Saída estendida para geração/edição de página completa
+    const requestOptions = (action === 'generate_page' || action === 'edit_page')
       ? { headers: { 'anthropic-beta': 'output-128k-2025-02-19' } }
       : {};
 
