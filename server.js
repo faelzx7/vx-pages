@@ -194,7 +194,7 @@ const aiLimiter = rateLimit({
   message:         { error: 'Muitas requisições. Aguarde alguns minutos e tente novamente.' },
 });
  
-app.use(express.json({ limit: '50kb' }));
+app.use(express.json({ limit: '2mb' }));
 
 // ─── Servir arquivos estáticos de public/ ─────
 // Apenas arquivos dentro de public/ são expostos — server.js, .env, etc. nunca são acessíveis.
@@ -588,8 +588,8 @@ Tom desejado: ${s.tone || 'direto e confiante'}`;
         break;
 
       case 'edit_page': {
-        // Recebe HTML atual + instrução do usuário + histórico de chat
-        const pageHtml    = sanitizeField(data.html || '', 400000);
+        // HTML não pode passar por sanitizeField (removeria as tags)
+        const pageHtml    = typeof data.html === 'string' ? data.html.slice(0, 400000) : '';
         const instruction = sanitizeField(data.instruction || '', 1000);
         if (!pageHtml || !instruction) {
           return res.status(400).json({ error: 'HTML e instrução são obrigatórios.' });
