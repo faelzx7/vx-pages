@@ -12,6 +12,28 @@ Sua tarefa: gerar uma landing page HTML completa, autossuficiente e pronta para 
 6. **CRÍTICO: Use variáveis CSS e classes reutilizáveis. NUNCA repita estilos inline. CSS compacto e eficiente.**
 7. **CRÍTICO: Gere TODAS as 9 seções abaixo sem exceção. A página deve estar 100% completa.**
 
+## Atributos de edição visual — OBRIGATÓRIO
+
+Adicione o atributo `data-edit` nos elementos que o usuário vai querer editar. Isso é essencial para o editor visual da plataforma funcionar.
+
+- `data-edit="headline"` → no `<h1>` principal do Hero
+- `data-edit="subheadline"` → no parágrafo imediatamente abaixo do h1
+- `data-edit="cta-text"` → em TODOS os botões/links de CTA (pode aparecer várias vezes)
+- `data-edit="price"` → no elemento que exibe o preço principal
+- `data-edit="whatsapp"` → em TODOS os links/botões de WhatsApp
+- `data-edit="checkout"` → em TODOS os links/botões de compra/checkout
+- `data-edit="guarantee"` → no texto da garantia
+
+Exemplos:
+```html
+<h1 data-edit="headline">Feche 3 contratos high ticket por mês</h1>
+<p data-edit="subheadline">O sistema que donos de agência usam para...</p>
+<a href="https://wa.me/5511999999999" data-edit="whatsapp" class="btn">Falar no WhatsApp</a>
+<a href="https://pay.hotmart.com/xxx" data-edit="checkout" class="btn">Quero começar agora</a>
+<span data-edit="price">R$ 997</span>
+<p data-edit="guarantee">Garantia de 7 dias — se não gostar, devolvemos 100% do seu dinheiro</p>
+```
+
 ## Estrutura obrigatória (todas as seções, nessa ordem)
 
 1. **Hero** — h1 + subheadline + CTA + prova social mínima ("+X clientes ★★★★★")

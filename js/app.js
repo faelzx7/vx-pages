@@ -9,13 +9,8 @@ const state = {
   currentSettingsTab: 'profile',
   builderStep: 1,
   builderData: {},
-  pages: [
-    { id: 1, name: 'Lançamento Programa Elite', status: 'live',  niche: 'Coaching', views: 1842, conv: '9.4%', date: '14 Mar 2025', thumb: 'thumb-1' },
-    { id: 2, name: 'Mentoria VSL Vendas',       status: 'live',  niche: 'Vendas',   views: 976,  conv: '6.2%', date: '10 Mar 2025', thumb: 'thumb-2' },
-    { id: 3, name: 'Captação — Imersão RJ',     status: 'draft', niche: 'Eventos',  views: 0,    conv: '—',    date: '18 Mar 2025', thumb: 'thumb-3' },
-    { id: 4, name: 'Produto Digital Finanças',  status: 'live',  niche: 'Finanças', views: 3211, conv: '11.8%',date: '5 Mar 2025',  thumb: 'thumb-4' },
-    { id: 5, name: 'Consultoria Estratégica',   status: 'draft', niche: 'Business', views: 0,    conv: '—',    date: '19 Mar 2025', thumb: 'thumb-5' },
-  ],
+  pages: [],
+  _pagesLoaded: false,
   modules: {
     prospecting: {
       title: 'Prospecção',
@@ -90,10 +85,12 @@ function navigate(section) {
   $$('.nav-item').forEach(n => n.classList.remove('active'));
   const target = $(`section-${section}`);
   if (target) target.classList.add('active');
-  const navItem = $(` nav-${section}`);
   document.querySelectorAll(`[data-nav="${section}"]`).forEach(el => el.classList.add('active'));
   state.currentSection = section;
   updateTopbar(section);
+
+  // Recarrega páginas ao navegar para a seção
+  if (section === 'pages' && state._pagesLoaded) loadPages();
 }
 
 function updateTopbar(section) {
@@ -128,14 +125,42 @@ function showToast(msg, type = 'info', duration = 3500) {
   setTimeout(() => toast.remove(), duration);
 }
 
+// ─── Load pages from API ─────────────────────
+async function loadPages() {
+  const user = typeof currentUser !== 'undefined' ? currentUser : null;
+  if (!user?.email) return;
+  try {
+    const res  = await fetch(`/api/pages?email=${encodeURIComponent(user.email)}`);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Erro');
+    state.pages = (json.pages || []).map(p => ({
+      id:           p.id,
+      name:         p.title,
+      status:       p.published ? 'live' : 'draft',
+      date:         new Date(p.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' }),
+      url:          p.url || null,
+      whatsapp:     p.whatsapp || '',
+      checkoutUrl:  p.checkout_url || '',
+    }));
+    state._pagesLoaded = true;
+    renderPages();
+    renderDashboard();
+  } catch (e) {
+    console.error('[loadPages]', e.message);
+  }
+}
+
 // ─── Dashboard ───────────────────────────────
 function renderDashboard() {
-  // Pages list
   const list = $('dash-pages-list');
   if (!list) return;
+  if (!state.pages.length) {
+    list.innerHTML = `<div style="padding:20px;text-align:center;color:var(--gray);font-size:0.82rem">Nenhuma página criada ainda.</div>`;
+    return;
+  }
   list.innerHTML = state.pages.slice(0, 4).map(p => `
     <div class="page-item">
-      <div class="page-thumb ${p.thumb}">
+      <div class="page-thumb thumb-1">
         <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
           <rect x="3" y="3" width="18" height="18" rx="2"/>
           <path d="M3 9h18M9 21V9"/>
@@ -143,7 +168,7 @@ function renderDashboard() {
       </div>
       <div class="page-info">
         <div class="page-name">${p.name}</div>
-        <div class="page-meta">${p.niche} · ${p.date}</div>
+        <div class="page-meta">${p.date}</div>
       </div>
       <div class="page-status ${p.status}">${p.status === 'live' ? 'Publicada' : 'Rascunho'}</div>
     </div>
@@ -280,22 +305,53 @@ function startGeneration() {
   }, 2500);
 }
 
-function exportPage() {
-  showToast('Página exportada e publicada! 🚀', 'success');
-  setTimeout(() => {
-    navigate('pages');
-    state.pages.unshift({
-      id: Date.now(), name: 'Nova Página (IA)', status: 'live',
-      niche: 'Geral', views: 0, conv: '—', date: 'Hoje', thumb: 'thumb-1'
+async function exportPage() {
+  const user = typeof currentUser !== 'undefined' ? currentUser : null;
+  if (!user?.email) { showToast('Faça login para publicar.', 'error'); return; }
+
+  const html = window._generatedHTML;
+  if (!html) { showToast('Gere a página antes de publicar.', 'error'); return; }
+
+  const btn = $('btn-export');
+  if (btn) { btn.disabled = true; btn.textContent = 'Publicando...'; }
+
+  try {
+    const title       = document.getElementById('field-product')?.value?.trim() || 'Minha Página';
+    const whatsapp    = document.getElementById('field-whatsapp')?.value?.trim() || '';
+    const checkoutUrl = document.getElementById('field-checkout-url')?.value?.trim() || '';
+
+    const res  = await fetch('/api/pages/save', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ email: user.email, title, html, whatsapp, checkout_url: checkoutUrl }),
     });
-    renderPages();
-  }, 1000);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Erro ao salvar');
+
+    showToast('Página publicada! 🚀', 'success');
+
+    // Mostra URL pública no browser-url do preview
+    if (json.url) {
+      document.querySelectorAll('.browser-url').forEach(el => el.textContent = json.url);
+      // Copia URL para clipboard
+      navigator.clipboard?.writeText(json.url).catch(() => {});
+      setTimeout(() => showToast(`URL copiada: ${json.url}`, 'info', 5000), 800);
+    }
+
+    // Recarrega lista de páginas
+    await loadPages();
+  } catch (e) {
+    showToast('Erro: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = '🚀 Publicar Página'; }
+  }
 }
 
 // ─── Pages ───────────────────────────────────
 function renderPages() {
   const grid = $('pages-grid');
   if (!grid) return;
+  const thumbs = ['thumb-1','thumb-2','thumb-3','thumb-4','thumb-5'];
   grid.innerHTML = `
     <div class="new-page-card" onclick="navigate('builder'); setBuilderStep(1);">
       <svg width="28" height="28" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -303,9 +359,14 @@ function renderPages() {
       </svg>
       <span>Criar Nova Página</span>
     </div>
-    ${state.pages.map(p => `
+    ${state.pages.map((p, i) => {
+      const thumb = thumbs[i % thumbs.length];
+      const urlLink = p.url
+        ? `<a href="${p.url}" target="_blank" rel="noopener" style="font-size:0.7rem;color:var(--green);text-decoration:none;word-break:break-all" title="Abrir página">↗ Ver publicada</a>`
+        : '';
+      return `
       <div class="pg-card">
-        <div class="pg-thumb ${p.thumb}">
+        <div class="pg-thumb ${thumb}">
           <div style="display:flex;flex-direction:column;gap:4px;padding:10px;width:100%">
             <div style="height:8px;background:rgba(255,255,255,0.2);border-radius:4px;width:60%"></div>
             <div style="height:5px;background:rgba(255,255,255,0.1);border-radius:3px;width:80%"></div>
@@ -313,28 +374,137 @@ function renderPages() {
             <div style="height:20px;background:rgba(0,255,133,0.3);border-radius:4px;width:40%;margin-top:6px"></div>
           </div>
           <div class="pg-thumb-overlay">
-            <button onclick="editPage(${p.id})">Editar Página</button>
+            <button onclick="editPage('${p.id}')">Editar Página</button>
           </div>
         </div>
         <div class="pg-body">
           <div class="pg-name">${p.name}</div>
-          <div class="pg-info">${p.niche} · ${p.date}</div>
+          <div class="pg-info">${p.date}</div>
+          ${urlLink ? `<div style="padding:0 0 4px">${urlLink}</div>` : ''}
           <div class="pg-footer">
             <div class="pg-stats">
-              <div class="pg-stat"><strong>${p.views.toLocaleString()}</strong> views</div>
-              <div class="pg-stat"><strong>${p.conv}</strong> conv.</div>
+              <div class="pg-stat"><strong>—</strong> views</div>
             </div>
             <div class="page-status ${p.status}">${p.status === 'live' ? 'Publicada' : 'Rascunho'}</div>
           </div>
         </div>
-      </div>
-    `).join('')}
+      </div>`;
+    }).join('')}
   `;
 }
 
-function editPage(id) {
-  showToast('Abrindo editor...', 'info');
-  setTimeout(() => navigate('builder'), 600);
+// ─── Editor modal ─────────────────────────────
+let _editorPageId = null;
+
+async function editPage(id) {
+  const user = typeof currentUser !== 'undefined' ? currentUser : null;
+  if (!user?.email) return;
+
+  showToast('Carregando editor...', 'info');
+  try {
+    const res  = await fetch(`/api/pages/${id}/html?email=${encodeURIComponent(user.email)}`);
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.error || 'Erro');
+
+    _editorPageId = id;
+
+    const page = state.pages.find(p => String(p.id) === String(id));
+
+    // Pre-fill campos do editor
+    const set = (elId, val) => { const el = document.getElementById(elId); if (el) el.value = val || ''; };
+    document.getElementById('editor-title').textContent = page?.name || json.title || 'Editar Página';
+
+    // Extrai valores atuais do HTML via data-edit
+    const parser = new DOMParser();
+    const doc    = parser.parseFromString(json.html, 'text/html');
+    set('ef-headline',    doc.querySelector('[data-edit="headline"]')?.textContent?.trim());
+    set('ef-subheadline', doc.querySelector('[data-edit="subheadline"]')?.textContent?.trim());
+    set('ef-cta',         doc.querySelector('[data-edit="cta-text"]')?.textContent?.trim());
+    set('ef-price',       doc.querySelector('[data-edit="price"]')?.textContent?.trim());
+    set('ef-guarantee',   doc.querySelector('[data-edit="guarantee"]')?.textContent?.trim());
+    set('ef-whatsapp',    page?.whatsapp || '');
+    set('ef-checkout',    page?.checkoutUrl || '');
+
+    // Carrega HTML no iframe de preview
+    const iframe = document.getElementById('editor-preview');
+    if (iframe) { iframe.srcdoc = json.html; }
+
+    // Guarda HTML em memória para edição
+    window._editorHTML = json.html;
+
+    // Abre modal
+    const modal = document.getElementById('editor-modal');
+    if (modal) { modal.style.display = 'flex'; }
+  } catch (e) {
+    showToast('Erro ao abrir editor: ' + e.message, 'error');
+  }
+}
+
+function closeEditor() {
+  const modal = document.getElementById('editor-modal');
+  if (modal) modal.style.display = 'none';
+  _editorPageId = null;
+  window._editorHTML = null;
+}
+
+// Aplica edição ao HTML em memória e atualiza o iframe
+function applyEditorField(attr, value, isLink) {
+  let html = window._editorHTML || '';
+  if (!html) return;
+
+  if (isLink) {
+    // Atualiza href nos elementos com data-edit="attr"
+    const re1 = new RegExp(`(<[^>]*data-edit="${attr}"[^>]*\\s)href="[^"]*"`, 'g');
+    const re2 = new RegExp(`(<[^>]*\\s)href="[^"]*"(\\s[^>]*data-edit="${attr}")`, 'g');
+    html = html.replace(re1, `$1href="${value}"`).replace(re2, `$1href="${value}"$2`);
+  } else {
+    // Atualiza textContent dos elementos com data-edit="attr"
+    const re = new RegExp(`(<[^>]*data-edit="${attr}"[^>]*>)[^<]*(<)`, 'g');
+    html = html.replace(re, `$1${value}$2`);
+  }
+
+  window._editorHTML = html;
+
+  const iframe = document.getElementById('editor-preview');
+  if (iframe) iframe.srcdoc = html;
+}
+
+async function saveEditedPage() {
+  const user = typeof currentUser !== 'undefined' ? currentUser : null;
+  if (!user?.email || !_editorPageId) return;
+
+  const html     = window._editorHTML;
+  const whatsapp = document.getElementById('ef-whatsapp')?.value?.trim() || '';
+  const checkout = document.getElementById('ef-checkout')?.value?.trim() || '';
+
+  const btn = document.getElementById('editor-save-btn');
+  if (btn) { btn.disabled = true; btn.textContent = 'Salvando...'; }
+
+  try {
+    // Salva HTML e links
+    const [resHtml, resLinks] = await Promise.all([
+      fetch(`/api/pages/${_editorPageId}`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: user.email, html }),
+      }),
+      fetch(`/api/pages/${_editorPageId}/links`, {
+        method:  'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ email: user.email, whatsapp, checkout_url: checkout }),
+      }),
+    ]);
+
+    if (!resHtml.ok) { const j = await resHtml.json(); throw new Error(j.error); }
+
+    showToast('Alterações salvas! ✅', 'success');
+    closeEditor();
+    await loadPages();
+  } catch (e) {
+    showToast('Erro ao salvar: ' + e.message, 'error');
+  } finally {
+    if (btn) { btn.disabled = false; btn.textContent = 'Salvar alterações'; }
+  }
 }
 
 // ─── Settings ────────────────────────────────
@@ -382,10 +552,16 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // Init renders
-  renderDashboard();
   renderTraining();
   renderPages();
   setBuilderStep(1);
+
+  // Carrega páginas reais quando currentUser estiver disponível
+  // auth.js chama enterApp() que dispara loadPages via evento
+  document.addEventListener('vxpages:user-ready', () => {
+    loadPages();
+    renderDashboard();
+  }, { once: false });
 
   // Animate progress bars
   setTimeout(() => {

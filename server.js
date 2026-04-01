@@ -266,15 +266,27 @@ app.post('/api/credits/use', async (req, res) => {
 
 // ─── Supabase: Pages ──────────────────────────
 app.post('/api/pages/save', async (req, res) => {
-  const { email, title, html } = req.body || {};
+  const { email, title, html, whatsapp, checkout_url } = req.body || {};
   if (!email || !html) return res.status(400).json({ error: 'Email e HTML obrigatórios.' });
+  if (typeof html !== 'string' || html.length > 500000) return res.status(400).json({ error: 'HTML inválido.' });
   try {
+    const slug = generateSlug(title || 'pagina');
+    const phone = typeof whatsapp === 'string' ? whatsapp.replace(/\D/g, '').slice(0, 20) : null;
+    const checkoutSafe = checkout_url ? sanitizeField(String(checkout_url), 500) : null;
     const { data, error } = await supabase.from('pages')
-      .insert({ email, title: title || 'Página sem título', html })
-      .select('id, title, created_at')
+      .insert({
+        email,
+        title:        title || 'Página sem título',
+        html,
+        slug,
+        published:    true,
+        whatsapp:     phone || null,
+        checkout_url: checkoutSafe || null,
+      })
+      .select('id, title, created_at, slug')
       .single();
     if (error) throw error;
-    res.json({ ok: true, page: data });
+    res.json({ ok: true, page: data, url: `${BASE_URL}/p/${data.slug}` });
   } catch (err) {
     console.error('[/api/pages/save]', err.message);
     res.status(500).json({ error: 'Erro ao salvar página.' });
@@ -286,11 +298,15 @@ app.get('/api/pages', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
   try {
     const { data, error } = await supabase.from('pages')
-      .select('id, title, created_at')
+      .select('id, title, created_at, slug, published, whatsapp, checkout_url')
       .eq('email', email)
       .order('created_at', { ascending: false });
     if (error) throw error;
-    res.json({ pages: data || [] });
+    const pages = (data || []).map(p => ({
+      ...p,
+      url: p.slug ? `${BASE_URL}/p/${p.slug}` : null,
+    }));
+    res.json({ pages });
   } catch (err) {
     console.error('[/api/pages GET]', err.message);
     res.status(500).json({ error: 'Erro ao buscar páginas.' });
@@ -332,6 +348,52 @@ app.patch('/api/pages/:id', async (req, res) => {
   }
 });
 
+// ─── Atualizar links da página ────────────────
+app.patch('/api/pages/:id/links', async (req, res) => {
+  const { email, whatsapp, checkout_url } = req.body || {};
+  if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
+  try {
+    const { data, error } = await supabase.from('pages')
+      .select('html')
+      .eq('id', req.params.id)
+      .eq('email', email)
+      .single();
+    if (error || !data) return res.status(404).json({ error: 'Página não encontrada.' });
+
+    let html = data.html;
+    const updates = {};
+
+    if (whatsapp !== undefined) {
+      const phone = String(whatsapp || '').replace(/\D/g, '').slice(0, 20);
+      // Substitui qualquer href wa.me existente
+      html = html.replace(/href="https:\/\/wa\.me\/[^"]*"/g,
+        phone ? `href="https://wa.me/${phone}"` : 'href="https://wa.me/SEU_NUMERO"');
+      updates.whatsapp = phone || null;
+    }
+
+    if (checkout_url !== undefined) {
+      const newUrl = sanitizeField(String(checkout_url || ''), 500);
+      // Substitui href em elementos com data-edit="checkout" (ambas ordens de atributos)
+      html = html.replace(/(<a\b[^>]*\bdata-edit="checkout"\b[^>]*\s)href="[^"]*"/g, `$1href="${newUrl}"`);
+      html = html.replace(/(<a\b[^>]*\s)href="[^"]*"(\s[^>]*\bdata-edit="checkout"\b)/g, `$1href="${newUrl}"$2`);
+      updates.checkout_url = newUrl || null;
+    }
+
+    updates.html = html;
+
+    const { error: upErr } = await supabase.from('pages')
+      .update(updates)
+      .eq('id', req.params.id)
+      .eq('email', email);
+    if (upErr) throw upErr;
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('[/api/pages/:id/links]', err.message);
+    res.status(500).json({ error: 'Erro ao atualizar links.' });
+  }
+});
+
 app.delete('/api/pages/:id', async (req, res) => {
   const email = req.query.email;
   if (!email) return res.status(400).json({ error: 'Email obrigatório.' });
@@ -351,11 +413,55 @@ app.get('/dash',     (_req, res) => res.sendFile(path.join(__dirname, 'public', 
 app.get('/pgnvnds',  (_req, res) => res.sendFile(path.join(__dirname, 'public', 'pgnvnds.html')));
 app.get('/obrigado', (_req, res) => res.sendFile(path.join(__dirname, 'public', 'obrigado.html')));
 
+// ─── Páginas públicas geradas ─────────────────
+app.get('/p/:slug', async (req, res) => {
+  const slug = req.params.slug;
+  if (!slug || !/^[a-z0-9-]{4,60}$/.test(slug)) return res.status(404).send('Página não encontrada.');
+  try {
+    const { data, error } = await supabase.from('pages')
+      .select('html, title')
+      .eq('slug', slug)
+      .eq('published', true)
+      .single();
+    if (error || !data?.html) {
+      return res.status(404).send('<!DOCTYPE html><html><head><title>Página não encontrada</title></head><body style="font-family:sans-serif;text-align:center;padding:80px"><h2>Página não encontrada</h2><p>Essa página não existe ou foi removida.</p></body></html>');
+    }
+    // CSP permissiva para páginas geradas (inline CSS/JS das landing pages)
+    res.setHeader('Content-Security-Policy',
+      "default-src 'self' https:; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src * data:; font-src 'self' data: https:; connect-src 'self' https:; frame-src https:;"
+    );
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    // Incrementa view count de forma assíncrona (não bloqueia a resposta)
+    supabase.rpc('increment_page_views', { page_slug: slug }).catch(() => {});
+    res.send(data.html);
+  } catch (err) {
+    console.error('[/p/:slug]', err.message);
+    res.status(500).send('Erro interno.');
+  }
+});
+
 // ─── Sanitização de campos ────────────────────
 // Remove tags HTML e limita o tamanho por campo
 function sanitizeField(val, maxLen = 500) {
   if (typeof val !== 'string') return '';
   return val.replace(/<[^>]*>/g, '').trim().slice(0, maxLen);
+}
+
+// ─── Slug generator ───────────────────────────
+function generateSlug(title) {
+  const base = String(title || '')
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .replace(/-+/g, '-')
+    .slice(0, 40)
+    .replace(/-$/, '');
+  const suffix = crypto.randomBytes(3).toString('hex');
+  return base ? `${base}-${suffix}` : suffix;
 }
  
 // ─── Claude Proxy ─────────────────────────────

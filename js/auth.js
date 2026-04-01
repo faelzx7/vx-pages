@@ -100,6 +100,9 @@ function enterApp() {
 
   navigate('dashboard');
   showToast(`Bem-vindo, ${currentUser.given}! 🚀`, 'success');
+
+  // Notifica app.js que o usuário está pronto (loadPages, etc.)
+  document.dispatchEvent(new CustomEvent('vxpages:user-ready', { detail: currentUser }));
 }
 
 // ─── Sign Out ────────────────────────────────

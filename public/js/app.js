@@ -377,6 +377,10 @@ async function viewPage(id) {
   } catch { showToast('Erro ao abrir página.', 'error'); }
 }
 
+// ─── Visual Editor State ─────────────────────
+let _editorDoc = null;
+let _editorPageId = null;
+
 async function editPage(id, title) {
   const email = window.currentUser?.email;
   if (!email) return;
@@ -385,51 +389,83 @@ async function editPage(id, title) {
     const data = await res.json();
     if (!data.html) return showToast('Erro ao carregar página.', 'error');
 
-    const modal    = document.getElementById('editor-modal');
-    const textarea = document.getElementById('editor-textarea');
-    const iframe   = document.getElementById('editor-preview');
-    const titleEl  = document.getElementById('editor-title');
+    // Parse HTML com DOMParser
+    const parser = new DOMParser();
+    _editorDoc    = parser.parseFromString(data.html, 'text/html');
+    _editorPageId = id;
 
+    const modal   = document.getElementById('editor-modal');
+    const titleEl = document.getElementById('editor-title');
     if (!modal) return;
 
-    titleEl.textContent  = title || 'Editar Página';
-    textarea.value       = data.html;
-    modal.dataset.pageId = id;
-    modal.style.display  = 'flex';
+    titleEl.textContent = title || 'Editar Página';
+    modal.style.display = 'flex';
     document.body.style.overflow = 'hidden';
 
-    // Atualiza preview ao digitar
-    const updatePreview = () => {
-      const doc = iframe.contentDocument || iframe.contentWindow.document;
-      doc.open(); doc.write(textarea.value); doc.close();
-    };
-    updatePreview();
-    textarea.oninput = updatePreview;
-  } catch { showToast('Erro ao carregar página.', 'error'); }
+    // Extrai valores atuais dos elementos data-edit
+    const getText = (attr) => (_editorDoc.querySelector(`[data-edit="${attr}"]`)?.textContent?.trim() || '');
+    const getHref = (attr) => (_editorDoc.querySelector(`[data-edit="${attr}"]`)?.getAttribute('href') || '');
+
+    document.getElementById('ef-headline').value    = getText('headline');
+    document.getElementById('ef-subheadline').value = getText('subheadline');
+    document.getElementById('ef-cta').value         = getText('cta-text');
+    document.getElementById('ef-price').value       = getText('price');
+    document.getElementById('ef-guarantee').value   = getText('guarantee');
+
+    // WhatsApp: extrai só o número do href
+    const waHref = getHref('whatsapp');
+    document.getElementById('ef-whatsapp').value = waHref.replace('https://wa.me/', '').replace(/\D/g, '');
+
+    document.getElementById('ef-checkout').value = getHref('checkout');
+
+    // Renderiza preview inicial
+    _updateEditorPreview();
+  } catch (e) {
+    console.error(e);
+    showToast('Erro ao carregar página.', 'error');
+  }
+}
+
+function _updateEditorPreview() {
+  const iframe = document.getElementById('editor-preview');
+  if (!iframe || !_editorDoc) return;
+  iframe.srcdoc = '<!DOCTYPE html>' + _editorDoc.documentElement.outerHTML;
+}
+
+function applyEditorField(attr, value, isHref = false) {
+  if (!_editorDoc) return;
+  const els = _editorDoc.querySelectorAll(`[data-edit="${attr}"]`);
+  els.forEach(el => {
+    if (isHref) el.setAttribute('href', value);
+    else        el.textContent = value;
+  });
+  _updateEditorPreview();
 }
 
 function closeEditor() {
   const modal = document.getElementById('editor-modal');
-  if (modal) { modal.style.display = 'none'; }
+  if (modal) modal.style.display = 'none';
   document.body.style.overflow = '';
+  _editorDoc    = null;
+  _editorPageId = null;
 }
 
 async function saveEditedPage() {
-  const modal    = document.getElementById('editor-modal');
-  const textarea = document.getElementById('editor-textarea');
-  const id       = modal?.dataset.pageId;
-  const email    = window.currentUser?.email;
-  if (!id || !email) return;
+  if (!_editorDoc || !_editorPageId) return;
+  const email = window.currentUser?.email;
+  if (!email) return;
 
   const btn = document.getElementById('editor-save-btn');
   btn.disabled = true;
   btn.textContent = 'Salvando...';
 
+  const html = '<!DOCTYPE html>' + _editorDoc.documentElement.outerHTML;
+
   try {
-    const res = await fetch(`/api/pages/${id}`, {
+    const res = await fetch(`/api/pages/${_editorPageId}`, {
       method:  'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify({ email, html: textarea.value }),
+      body:    JSON.stringify({ email, html }),
     });
     const data = await res.json();
     if (data.ok) {
@@ -440,7 +476,7 @@ async function saveEditedPage() {
       showToast(data.error || 'Erro ao salvar.', 'error');
     }
   } catch { showToast('Erro ao salvar.', 'error'); }
-  finally  { btn.disabled = false; btn.textContent = 'Salvar'; }
+  finally  { btn.disabled = false; btn.textContent = 'Salvar alterações'; }
 }
 
 async function deletePage(id) {

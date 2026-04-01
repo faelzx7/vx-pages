@@ -1106,23 +1106,80 @@
   <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0">
     <div style="display:flex;align-items:center;gap:12px">
       <span style="font-size:1rem;font-weight:700" id="editor-title">Editar Página</span>
-      <span style="font-size:0.72rem;color:var(--gray);background:var(--bg-dark);padding:3px 8px;border-radius:6px">HTML</span>
+      <span style="font-size:0.72rem;color:var(--green);background:rgba(0,255,133,.1);padding:3px 10px;border-radius:6px;font-weight:600">✏️ Editor Visual</span>
     </div>
     <div style="display:flex;gap:10px;align-items:center">
-      <button id="editor-save-btn" onclick="saveEditedPage()" style="padding:8px 20px;background:var(--green);border:none;border-radius:8px;color:#052F33;font-weight:700;font-size:0.85rem;cursor:pointer">Salvar</button>
+      <button id="editor-save-btn" onclick="saveEditedPage()" style="padding:8px 20px;background:var(--green);border:none;border-radius:8px;color:#052F33;font-weight:700;font-size:0.85rem;cursor:pointer">Salvar alterações</button>
       <button onclick="closeEditor()" style="padding:8px 14px;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;color:var(--gray);font-size:0.85rem;cursor:pointer">✕ Fechar</button>
     </div>
   </div>
-  <!-- Body: editor + preview -->
-  <div style="display:flex;flex:1;overflow:hidden;gap:0">
-    <!-- Textarea -->
-    <div style="width:45%;display:flex;flex-direction:column;border-right:1px solid var(--border)">
-      <div style="padding:8px 14px;font-size:0.7rem;color:var(--gray);background:var(--bg-card);border-bottom:1px solid var(--border)">✏️ Código HTML — edite diretamente</div>
-      <textarea id="editor-textarea" spellcheck="false" style="flex:1;background:#0a1a1c;color:#e0f0f0;border:none;outline:none;padding:16px;font-family:monospace;font-size:0.8rem;line-height:1.6;resize:none;overflow-y:auto"></textarea>
+  <!-- Body: form + preview -->
+  <div style="display:flex;flex:1;overflow:hidden">
+    <!-- Left: campos visuais -->
+    <div style="width:320px;overflow-y:auto;padding:20px;display:flex;flex-direction:column;gap:14px;background:var(--bg-card);border-right:1px solid var(--border);flex-shrink:0">
+      <p style="font-size:0.78rem;color:var(--gray);margin:0;line-height:1.5;padding-bottom:4px;border-bottom:1px solid var(--border)">Edite os campos e veja o resultado ao vivo →</p>
+
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Headline principal</label>
+        <input id="ef-headline" type="text" placeholder="Ex: Feche 3 contratos por mês..."
+          oninput="applyEditorField('headline', this.value)"
+          style="width:100%;box-sizing:border-box;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.85rem;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Subtítulo</label>
+        <textarea id="ef-subheadline" rows="2" placeholder="Frase de apoio abaixo do título..."
+          oninput="applyEditorField('subheadline', this.value)"
+          style="width:100%;box-sizing:border-box;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.85rem;outline:none;resize:vertical;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Texto dos botões (CTA)</label>
+        <input id="ef-cta" type="text" placeholder="Ex: Quero começar agora"
+          oninput="applyEditorField('cta-text', this.value)"
+          style="width:100%;box-sizing:border-box;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.85rem;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'">
+        <span style="font-size:0.7rem;color:var(--gray);display:block;margin-top:4px">Atualiza todos os botões da página</span>
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Preço</label>
+        <input id="ef-price" type="text" placeholder="Ex: R$ 997"
+          oninput="applyEditorField('price', this.value)"
+          style="width:100%;box-sizing:border-box;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.85rem;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Número do WhatsApp</label>
+        <input id="ef-whatsapp" type="text" placeholder="5511999999999"
+          oninput="applyEditorField('whatsapp','https://wa.me/'+this.value.replace(/\D/g,''),true)"
+          style="width:100%;box-sizing:border-box;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.85rem;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'">
+        <span style="font-size:0.7rem;color:var(--gray);display:block;margin-top:4px">Só números com DDI (ex: 5511999999999)</span>
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Link do checkout</label>
+        <input id="ef-checkout" type="text" placeholder="https://pay.hotmart.com/..."
+          oninput="applyEditorField('checkout',this.value,true)"
+          style="width:100%;box-sizing:border-box;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.85rem;outline:none;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'">
+      </div>
+
+      <div>
+        <label style="font-size:0.7rem;font-weight:700;color:var(--green);text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:5px">Garantia</label>
+        <textarea id="ef-guarantee" rows="2" placeholder="Ex: Garantia de 7 dias..."
+          oninput="applyEditorField('guarantee', this.value)"
+          style="width:100%;box-sizing:border-box;background:var(--bg-dark);border:1px solid var(--border);border-radius:8px;padding:9px 12px;color:var(--text);font-size:0.85rem;outline:none;resize:vertical;transition:border-color .2s"
+          onfocus="this.style.borderColor='var(--green)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+      </div>
     </div>
-    <!-- Preview -->
+    <!-- Right: preview -->
     <div style="flex:1;display:flex;flex-direction:column">
-      <div style="padding:8px 14px;font-size:0.7rem;color:var(--gray);background:var(--bg-card);border-bottom:1px solid var(--border)">👁 Preview em tempo real</div>
+      <div style="padding:8px 14px;font-size:0.7rem;color:var(--gray);background:var(--bg-card);border-bottom:1px solid var(--border);flex-shrink:0">👁 Pré-visualização em tempo real</div>
       <iframe id="editor-preview" style="flex:1;border:none;background:#fff"></iframe>
     </div>
   </div>

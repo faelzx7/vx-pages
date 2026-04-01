@@ -45,7 +45,9 @@ function getBuilderData() {
       const sel = document.querySelector('.palette-item.selected');
       return sel ? (sel.title || 'Verde') : 'Verde';
     })(),
-    promise: get('field-promise'),
+    promise:     get('field-promise'),
+    whatsapp:    get('field-whatsapp'),
+    checkoutUrl: get('field-checkout-url'),
   };
 }
 
@@ -160,60 +162,67 @@ function selectHeadline(index) {
 
 // ─── Generate Full Page ───────────────────────
 async function aiGeneratePage() {
-  const preview = document.getElementById('preview-pane-content');
+  const preview     = document.getElementById('preview-pane-content');
+  const iframe      = document.getElementById('page-preview-iframe');
+  const placeholder = document.getElementById('preview-placeholder');
+  const actions     = document.getElementById('preview-actions');
   if (!preview) return;
 
+  if (placeholder) placeholder.style.display = 'none';
+  if (iframe)      { iframe.style.display = 'none'; iframe.srcdoc = ''; }
+  if (actions)     actions.style.display = 'none';
+
   preview.innerHTML = `
-    <div class="generating">
+    <div style="padding:48px;text-align:center">
       <div class="gen-dots"><span></span><span></span><span></span></div>
-      <span>Claude está criando sua página...</span>
+      <div style="color:var(--gray);font-size:0.85rem;margin-top:16px">Claude está criando sua página...</div>
     </div>
   `;
 
   try {
-    const raw    = await callClaude('generate_page', getBuilderData());
-    let pageData = {};
+    const html = await callClaude('generate_page', getBuilderData());
 
-    try {
-      // Strip markdown code blocks if present
-      const cleaned = raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      pageData = JSON.parse(cleaned);
-    } catch {
-      pageData = { headline: raw, subheadline: '', cta: 'Quero Começar Agora', benefits: [], testimonial: '', urgency: '' };
+    // Guarda o HTML para salvar depois
+    window._generatedHTML = html;
+
+    // Exibe no iframe (srcdoc é same-origin, seguro)
+    preview.innerHTML = '';
+    if (iframe) {
+      iframe.srcdoc = html;
+      iframe.style.display = 'block';
     }
+    if (actions) actions.style.removeProperty('display');
 
-    renderGeneratedPage(preview, pageData);
-    const previewTab = document.getElementById('preview-tab-pane');
-    if (previewTab) renderGeneratedPage(previewTab, pageData);
-    updateSummary(pageData);
+    // Atualiza painel de resumo com valores do formulário
+    updateSummary({});
+
     showToast('Página gerada com Claude IA! 🎨', 'success');
-    setBuilderStep(5);
   } catch (e) {
     preview.innerHTML = `
-      <div style="padding:20px;text-align:center;color:var(--gray)">
+      <div style="padding:40px;text-align:center;color:var(--gray)">
         <div style="font-size:2rem;margin-bottom:12px">⚠️</div>
-        <div style="font-size:0.82rem">${e.message}</div>
+        <div style="font-size:0.85rem">${e.message}</div>
       </div>
     `;
+    if (placeholder) placeholder.style.display = '';
     showToast('Erro ao gerar página: ' + e.message, 'error');
   }
 }
 
 // ─── Update Summary Panel ─────────────────────
-function updateSummary(pageData) {
+function updateSummary(_pageData) {
   const el = id => document.getElementById(id);
 
-  const tipo = document.querySelector('#tipo-container .style-option.selected')?.textContent?.trim() || 'VSL (Vídeo)';
-  const estilo = document.querySelector('.style-selector .style-option.selected')?.textContent?.trim() || 'Dark Profissional';
-  const secoes = document.querySelectorAll('#secoes-container input[type="checkbox"]:checked').length;
-  const cta = (pageData?.cta || 'QUERO COMEÇAR AGORA').toUpperCase();
-  const score = Math.floor(Math.random() * 8) + 91; // 91–98
+  const estilo  = document.querySelector('.style-selector .style-option.selected')?.textContent?.trim() || 'Dark Profissional';
+  const secoes  = document.querySelectorAll('#secoes-container input[type="checkbox"]:checked').length;
+  const cta     = (document.getElementById('field-promise')?.value?.trim() || 'QUERO COMEÇAR AGORA').toUpperCase();
+  const score   = Math.floor(Math.random() * 8) + 91;
 
-  if (el('summary-tipo'))   el('summary-tipo').textContent  = tipo;
-  if (el('summary-estilo')) el('summary-estilo').textContent = estilo;
-  if (el('summary-secoes')) el('summary-secoes').textContent = `${secoes} seção${secoes !== 1 ? 'ões' : ''}`;
-  if (el('summary-cta'))    el('summary-cta').textContent    = cta;
-  if (el('summary-score'))  el('summary-score').textContent  = `${score}/100 🔥`;
+  if (el('summary-tipo'))   el('summary-tipo').textContent   = 'Landing Page';
+  if (el('summary-estilo')) el('summary-estilo').textContent  = estilo;
+  if (el('summary-secoes')) el('summary-secoes').textContent  = `${secoes} seção${secoes !== 1 ? 'ões' : ''}`;
+  if (el('summary-cta'))    el('summary-cta').textContent     = cta;
+  if (el('summary-score'))  el('summary-score').textContent   = `${score}/100 🔥`;
 }
 
 function renderGeneratedPage(container, p) {
@@ -250,6 +259,31 @@ function renderGeneratedPage(container, p) {
       ` : ''}
     </div>
   `;
+}
+
+// ─── Fullscreen / Download helpers ───────────
+function openPageFullscreen() {
+  const html = window._generatedHTML;
+  if (!html) { showToast('Gere uma página primeiro.', 'info'); return; }
+  const win = window.open('', '_blank');
+  if (!win) { showToast('Pop-up bloqueado. Permita pop-ups e tente novamente.', 'error'); return; }
+  win.document.open();
+  win.document.write(html);
+  win.document.close();
+}
+
+function downloadPage() {
+  const html = window._generatedHTML;
+  if (!html) { showToast('Gere uma página primeiro.', 'info'); return; }
+  const title = document.getElementById('field-product')?.value?.trim() || 'pagina';
+  const slug  = title.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '').slice(0, 40);
+  const blob  = new Blob([html], { type: 'text/html;charset=utf-8' });
+  const url   = URL.createObjectURL(blob);
+  const a     = document.createElement('a');
+  a.href      = url;
+  a.download  = `${slug || 'pagina'}.html`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ─── Loading state helper ─────────────────────
